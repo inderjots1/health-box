@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
+
+import 'onboarding2.dart';
 
 class OnBoarding1 extends StatefulWidget {
   @override
@@ -11,10 +14,15 @@ class OnBoarding1 extends StatefulWidget {
 }
 
 class _OnBoarding1State extends State<OnBoarding1> {
+  var whiteColor1= Colors.white;
+  var text1= Colors.grey;
+  var whiteColor2= Colors.white;
+  var text2= Colors.grey;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+          backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.all(15.0),
         child: Column(
@@ -22,12 +30,22 @@ class _OnBoarding1State extends State<OnBoarding1> {
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: EdgeInsets.only(top: 30.0),
-                child: Image(
-                  image: AssetImage(Assets.appLogo),
-                  height: 60.0,
-                  width: 100.0,
-                ),
+                padding: EdgeInsets.only(top: 10.0),
+                child: Column(children: [
+                  Image(
+                    image: AssetImage(Assets.slide1),
+                    height: 5.0,
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                  SizedBox(height: 10.0,),
+                  Image(
+                    image: AssetImage(Assets.appLogo),
+                    height: 60.0,
+                    width: 100.0,
+                  ),
+                  SizedBox(height: 10.0,),
+                  Text(Strings.text_onboarding1,style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),)
+                ],),
               ),
             ),
             Expanded(
@@ -46,20 +64,27 @@ class _OnBoarding1State extends State<OnBoarding1> {
                               elevation: 5.0,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              child: Container(
+                              child: InkWell(onTap:(){
+                                setState(() {
+                                  whiteColor1 =greenColor;
+                                  whiteColor2 =Colors.white;
+                                  text2 =Colors.grey;
+                                  text1 =Colors.green;
+                                });
+                              },child: Container(
                                 height: 200.0,
                                 decoration: BoxDecoration(
                                     borderRadius:
-                                        BorderRadius.all(Radius.circular(10.0)),
-                                    color: greenColor),
+                                    BorderRadius.all(Radius.circular(10.0)),
+                                    color: whiteColor1),
                                 child: Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Image(
                                     image: AssetImage(Assets.maleLogo),
                                   ),
                                 ),
-                              )),
-                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Male"),)
+                              ),)),
+                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Male",style: TextStyle(color: text1),),)
                         ],
                       ),
                     ),
@@ -75,20 +100,28 @@ class _OnBoarding1State extends State<OnBoarding1> {
                               elevation: 5.0,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0)),
-                              child: Container(
+                              child: InkWell(onTap:(){
+                               setState(() {
+                                 whiteColor2 =greenColor;
+                                 whiteColor1 =Colors.white;
+                                 text2 =Colors.green;
+                                 text1 =Colors.grey;
+
+                               });
+                              },child: Container(
                                 height: 200.0,
                                 decoration: BoxDecoration(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10.0)),
-                                    color: greenColor),
+                                    color: whiteColor2),
                                 child: Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Image(
                                     image: AssetImage(Assets.femaleLogo),
                                   ),
                                 ),
-                              )),
-                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Female"),)
+                              ))),
+                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Female",style: TextStyle(color: text2),),)
                         ],
                       ),
                     ),
@@ -104,7 +137,9 @@ class _OnBoarding1State extends State<OnBoarding1> {
                     buttonColor: greenColor,
                     buttonText: Strings.text_next,
                     textColor: Colors.white,
-                    onPressed: () {},
+                    onPressed: () {
+                      Utils.pushReplacement(context, OnBoarding2());
+                    },
                     isIconDisplay: false,
                   )),
             )

@@ -6,12 +6,14 @@ class RoundedButtonWidget extends StatelessWidget {
   final Color textColor;
   final String imageUrl;
   final bool isIconDisplay;
+  final double width;
   final VoidCallback onPressed;
 
   const RoundedButtonWidget({
     Key key,
     this.buttonText,
     this.buttonColor,
+    this.width,
     this.imageUrl,
     this.isIconDisplay,
     this.textColor = Colors.white,
@@ -21,7 +23,7 @@ class RoundedButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
+        minWidth: width,
         height: 50.0,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
