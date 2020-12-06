@@ -106,6 +106,8 @@ class Utils {
     Navigator.of(context, rootNavigator: true).pop('dialog');
   }
 
+
+
   static void showWidget(viewVisible) {
 
       viewVisible = true;
