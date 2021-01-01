@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "101734232912",
+    "project_id": "healthybox-6d637",
+    "storage_bucket": "healthybox-6d637.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101734232912:android:e6b5c470f7e7bf91d8f255",
+        "android_client_info": {
+          "package_name": "com.io.health_box"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101734232912-kivv4emmq0g4l3q2cfg7l65jk1tbbnjh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALltPvFiXGMeBhbObN9CQNeeJLJ_c2GyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101734232912-kivv4emmq0g4l3q2cfg7l65jk1tbbnjh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
