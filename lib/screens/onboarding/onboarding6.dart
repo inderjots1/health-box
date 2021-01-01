@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/screens/home/homeScreen.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
 
 class OnBoarding6 extends StatefulWidget {
@@ -17,10 +19,10 @@ class OnBoarding6 extends StatefulWidget {
 class _OnBoarding1State extends State<OnBoarding6> {
   int _currentSelection = 0;
   Map<int, Widget> _children = {
-    0: Text('      Lb      '),
-    1: Text('      Kg      '),
+    0: Text(LocaleKeys.key_lb).tr(),
+    1: Text(LocaleKeys.key_kg).tr(),
   };
-  var text = "Lb";
+  var text = "Kg";
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +59,10 @@ class _OnBoarding1State extends State<OnBoarding6> {
                           height: 10.0,
                         ),
                         Text(
-                          Strings.text_onboarding6,
+                          LocaleKeys.key_your_goal,
                           style: TextStyle(
                               fontSize: 20.0, fontWeight: FontWeight.bold),
-                        )
+                        ).tr()
                       ],
                     ),
                   ),
@@ -85,7 +87,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
                                         width: 100,
                                         child: RoundedButtonWidget(
                                           buttonColor: greenColor,
-                                          buttonText: "Skip",
+                                          buttonText: LocaleKeys.key_skip,
                                           width: 100,
                                           textColor: Colors.white,
                                           onPressed: () {},
@@ -119,16 +121,16 @@ class _OnBoarding1State extends State<OnBoarding6> {
                               ],
                             ),
                             SizedBox(height: 20,),
-                            MaterialSegmentedControl(
+                          /*  MaterialSegmentedControl(
                               children: _children,
                               selectionIndex: _currentSelection,
                               borderColor: Colors.grey,
                               selectedColor: greenColor,
                               unselectedColor: Colors.white,
                               borderRadius: 20.0,
-                              /*  disabledChildren: [
+                              *//*  disabledChildren: [
                             1
-                          ],*/
+                          ],*//*
                               onSegmentChosen: (index) {
                                 setState(() {
                                   _currentSelection = index;
@@ -139,7 +141,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
                                   }
                                 });
                               },
-                            )
+                            )*/
                           ],
                         ),
                         flex: 2,
@@ -154,7 +156,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
                       padding: EdgeInsets.only(bottom: 5.0),
                       child: RoundedButtonWidget(
                         buttonColor: greenColor,
-                        buttonText: Strings.text_next,
+                        buttonText: LocaleKeys.key_next,
                         textColor: Colors.white,
                         onPressed: () {
                           Utils.pushRemove(context, HomeScreen());

@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/screens/onboarding/onboarding4.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
 
 class OnBoarding3 extends StatefulWidget {
@@ -20,7 +22,7 @@ class _OnBoarding1State extends State<OnBoarding3> {
     0: Text('      Ft      '),
     1: Text('      cm      '),
   };
-  var text = "Ft";
+  var text = " ";
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +56,10 @@ class _OnBoarding1State extends State<OnBoarding3> {
                       height: 10.0,
                     ),
                     Text(
-                      Strings.text_onboarding3,
+                      LocaleKeys.key_old_you,
                       style: TextStyle(
                           fontSize: 20.0, fontWeight: FontWeight.bold),
-                    )
+                    ).tr()
                   ],
                 ),
               ),
@@ -82,7 +84,7 @@ class _OnBoarding1State extends State<OnBoarding3> {
                                     width: 100,
                                     child: RoundedButtonWidget(
                                       buttonColor: greenColor,
-                                      buttonText: "Skip",
+                                      buttonText: LocaleKeys.key_skip,
                                       width: 100,
                                       textColor: Colors.white,
                                       onPressed: () {},
@@ -131,7 +133,7 @@ class _OnBoarding1State extends State<OnBoarding3> {
                   padding: EdgeInsets.only(bottom: 5.0),
                   child: RoundedButtonWidget(
                     buttonColor: greenColor,
-                    buttonText: Strings.text_next,
+                    buttonText: LocaleKeys.key_next,
                     textColor: Colors.white,
                     onPressed: () {
                       Utils.pushReplacement(context, OnBoarding4());

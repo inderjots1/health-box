@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 
 import 'onboarding2.dart';
+
+import 'package:easy_localization/easy_localization.dart';
 
 class OnBoarding1 extends StatefulWidget {
   @override
@@ -44,7 +47,7 @@ class _OnBoarding1State extends State<OnBoarding1> {
                     width: 100.0,
                   ),
                   SizedBox(height: 10.0,),
-                  Text(Strings.text_onboarding1,style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),)
+                  Text(LocaleKeys.key_tell_your_self,style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold),).tr()
                 ],),
               ),
             ),
@@ -84,7 +87,7 @@ class _OnBoarding1State extends State<OnBoarding1> {
                                   ),
                                 ),
                               ),)),
-                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Male",style: TextStyle(color: text1),),)
+                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text(LocaleKeys.key_male,style: TextStyle(color: text1),).tr(),)
                         ],
                       ),
                     ),
@@ -121,7 +124,7 @@ class _OnBoarding1State extends State<OnBoarding1> {
                                   ),
                                 ),
                               ))),
-                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text("Female",style: TextStyle(color: text2),),)
+                          Padding(padding: EdgeInsets.only(top: 15.0),child: Text(LocaleKeys.key_female,style: TextStyle(color: text2),).tr(),)
                         ],
                       ),
                     ),
@@ -135,7 +138,7 @@ class _OnBoarding1State extends State<OnBoarding1> {
                   padding: EdgeInsets.only(bottom: 5.0),
                   child: RoundedButtonWidget(
                     buttonColor: greenColor,
-                    buttonText: Strings.text_next,
+                    buttonText: LocaleKeys.key_next,
                     textColor: Colors.white,
                     onPressed: () {
                       Utils.pushReplacement(context, OnBoarding2());

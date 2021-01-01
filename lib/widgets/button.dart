@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class RoundedButtonWidget extends StatelessWidget {
   final String buttonText;
@@ -24,7 +25,7 @@ class RoundedButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialButton(
         minWidth: width,
-        height: 50.0,
+        height: 45.0,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0),
             side: BorderSide(color: buttonColor)),
@@ -41,10 +42,10 @@ class RoundedButtonWidget extends StatelessWidget {
             Padding(padding: EdgeInsets.only(left: 10.0),child: Text(
               buttonText,
               style: TextStyle(
-                fontSize: 14.0,
+                fontSize: 16.0,
                 color: Colors.white,
-              ),
-            ),)
+              )
+            ).tr(),)
           ],
         ),
         elevation: 6.0,

@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'onboarding3.dart';
 
 class OnBoarding2 extends StatefulWidget {
@@ -16,8 +17,8 @@ class OnBoarding2 extends StatefulWidget {
 class _OnBoarding1State extends State<OnBoarding2> {
   var currentIndex=-1;
   var list1 =[Assets.thumb,Assets.dumble,Assets.dumble,Assets.muscle];
-  var list2 =["Feeling Confident","Body Builder","Being active","Gain Weight"];
-  var list3 =["I want to be more confident in myself","I wantto be an look stronger","I want to feel energetic, fit and healthy","I want to gain Weight, I feel skinny"];
+  var list2 =[LocaleKeys.key_feeling_confident,LocaleKeys.key_body_building,LocaleKeys.key_being_active,LocaleKeys.key_gain_weight];
+  var list3 =[LocaleKeys.key_head1,LocaleKeys.key_head2,LocaleKeys.key_head3,LocaleKeys.key_head4];
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +52,10 @@ class _OnBoarding1State extends State<OnBoarding2> {
                       height: 10.0,
                     ),
                     Text(
-                      Strings.text_onboarding2,
+                     LocaleKeys.key_what_motivate_you,
                       style: TextStyle(
                           fontSize: 20.0, fontWeight: FontWeight.bold),
-                    )
+                    ).tr()
                   ],
                 ),
               ),
@@ -101,7 +102,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                                               color: currentIndex==index?Colors.white:Colors.black,
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16.0),
-                                        ),
+                                        ).tr(),
                                         SizedBox(
                                           height: 5.0,
                                         ),
@@ -111,7 +112,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                                               color:currentIndex==index?Colors.white:Colors.grey,
                                               fontWeight: FontWeight.w600,
                                               fontSize: 14.0),
-                                        ),
+                                        ).tr(),
                                       ],
                                     )
                                   ],
@@ -127,7 +128,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                   padding: EdgeInsets.only(bottom: 5.0),
                   child: RoundedButtonWidget(
                     buttonColor: greenColor,
-                    buttonText: Strings.text_next,
+                    buttonText: LocaleKeys.key_next,
                     textColor: Colors.white,
                     onPressed: () {
                       Utils.pushReplacement(context, OnBoarding3());

@@ -4,10 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
+import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'onboarding5.dart';
 
 class OnBoarding4 extends StatefulWidget {
@@ -18,8 +19,8 @@ class OnBoarding4 extends StatefulWidget {
 class _OnBoarding1State extends State<OnBoarding4> {
   int _currentSelection = 0;
   Map<int, Widget> _children = {
-    0: Text('      Ft      '),
-    1: Text('      cm      '),
+    0: Text(LocaleKeys.key_ft).tr(),
+    1: Text(LocaleKeys.key_cm).tr(),
   };
   var text = "Ft";
 
@@ -58,10 +59,10 @@ class _OnBoarding1State extends State<OnBoarding4> {
                           height: 10.0,
                         ),
                         Text(
-                          Strings.text_onboarding4,
+                         LocaleKeys.key_tall_you,
                           style: TextStyle(
                               fontSize: 20.0, fontWeight: FontWeight.bold),
-                        )
+                        ).tr()
                       ],
                     ),
                   ),
@@ -86,7 +87,7 @@ class _OnBoarding1State extends State<OnBoarding4> {
                                         width: 100,
                                         child: RoundedButtonWidget(
                                           buttonColor: greenColor,
-                                          buttonText: "Skip",
+                                          buttonText: LocaleKeys.key_skip,
                                           width: 100,
                                           textColor: Colors.white,
                                           onPressed: () {},
@@ -155,7 +156,7 @@ class _OnBoarding1State extends State<OnBoarding4> {
                       padding: EdgeInsets.only(bottom: 5.0),
                       child: RoundedButtonWidget(
                         buttonColor: greenColor,
-                        buttonText: Strings.text_next,
+                        buttonText: LocaleKeys.key_next,
                         textColor: Colors.white,
                         onPressed: () {
                           Utils.pushReplacement(context,OnBoarding5());
