@@ -193,7 +193,7 @@ class _SplashScreenState extends State<SplashScreen> {
       textColor: grey,
       isIconDisplay: false,
       onPressed: () {
-        Utils.pushReplacement(context, OnBoarding1());
+       // Utils.pushReplacement(context, OnBoarding1());
       },
       imageUrl: Assets.appleLogo,
     );

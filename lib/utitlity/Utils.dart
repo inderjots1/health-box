@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -58,8 +59,6 @@ class Utils {
     Navigator.popUntil(context, ModalRoute.withName(name));
   }
 
-  /* */ /*---------------------------------------- toast ------------------------------------*/ /*
-
   static void toast(message) {
     Fluttertoast.showToast(
         msg: message,
@@ -67,6 +66,9 @@ class Utils {
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1);
   }
+  /* */ /*---------------------------------------- toast ------------------------------------*/ /*
+
+
 
   static onBackPressed(context) {
     Navigator.pop(context, true);

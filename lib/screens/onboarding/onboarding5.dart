@@ -13,6 +13,10 @@ import 'package:material_segmented_control/material_segmented_control.dart';
 import 'onboarding6.dart';
 
 class OnBoarding5 extends StatefulWidget {
+  String name, email, password, gender, motivation, age,tall;
+
+  OnBoarding5(this.name, this. email, this. password, this. gender, this. motivation,this. age, this. tall);
+
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
 }
@@ -24,6 +28,8 @@ class _OnBoarding1State extends State<OnBoarding5> {
     1: Text(LocaleKeys.key_kg).tr(),
   };
   var text = "Kg";
+  TextEditingController _textEditingController = new TextEditingController();
+  String weight ="";
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +98,10 @@ class _OnBoarding1State extends State<OnBoarding5> {
                                           buttonText: LocaleKeys.key_skip,
                                           width: 100,
                                           textColor: Colors.white,
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight));
+
+                                          },
                                           isIconDisplay: false,
                                         ),
                                       )),
@@ -102,6 +111,7 @@ class _OnBoarding1State extends State<OnBoarding5> {
                                   child: Align(
                                     alignment: Alignment.center,
                                     child: Container(width: 100.0,child: TextFormField(
+                                      controller: _textEditingController,
                                         inputFormatters: [
                                           LengthLimitingTextInputFormatter(5),
                                         ],
@@ -161,7 +171,13 @@ class _OnBoarding1State extends State<OnBoarding5> {
                         buttonText: LocaleKeys.key_next,
                         textColor: Colors.white,
                         onPressed: () {
-                          Utils.pushReplacement(context, OnBoarding6());
+                          weight = _textEditingController.text;
+                          if(weight.isEmpty){
+                            Utils.toast("please enter weight");
+                          }else{
+                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight));
+                          }
+
                         },
                         isIconDisplay: false,
                       )),

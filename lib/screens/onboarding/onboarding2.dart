@@ -10,12 +10,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'onboarding3.dart';
 
 class OnBoarding2 extends StatefulWidget {
+  String name,email,password,gender;
+  OnBoarding2(this.name, this.email,this.password,this.gender);
+
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
 }
 
 class _OnBoarding1State extends State<OnBoarding2> {
   var currentIndex=-1;
+   String motivation="";
   var list1 =[Assets.thumb,Assets.dumble,Assets.dumble,Assets.muscle];
   var list2 =[LocaleKeys.key_feeling_confident,LocaleKeys.key_body_building,LocaleKeys.key_being_active,LocaleKeys.key_gain_weight];
   var list3 =[LocaleKeys.key_head1,LocaleKeys.key_head2,LocaleKeys.key_head3,LocaleKeys.key_head4];
@@ -74,6 +78,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                               onTap: () {
                                 setState(() {
                                   currentIndex = index;
+                                  motivation = list2[index];
                                 });
                               },
                               child: Container(
@@ -131,7 +136,11 @@ class _OnBoarding1State extends State<OnBoarding2> {
                     buttonText: LocaleKeys.key_next,
                     textColor: Colors.white,
                     onPressed: () {
-                      Utils.pushReplacement(context, OnBoarding3());
+                      if(motivation.isEmpty){
+                        Utils.toast("please select what's motivates you");
+                      }else {
+                        Utils.pushReplacement(context, OnBoarding3(widget.name,widget.email,widget.password,widget.gender,this.motivation));
+                      }
                     },
                     isIconDisplay: false,
                   )),

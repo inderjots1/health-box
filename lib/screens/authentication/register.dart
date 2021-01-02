@@ -5,6 +5,7 @@ import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/screens/onboarding/onboarding1.dart';
 import 'package:health_box/utitlity/Utils.dart';
+import 'package:health_box/utitlity/Validator.dart';
 import 'package:health_box/widgets/button.dart';
 
 import '../../constant.dart';
@@ -18,6 +19,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<RegisterScreen> {
+  var _formKey = GlobalKey<FormState>();
   TextEditingController _nameEditingController = new TextEditingController();
   TextEditingController _emailEditingController = new TextEditingController();
   TextEditingController _passwordEditingController =
@@ -28,6 +30,10 @@ class _LoginScreenState extends State<RegisterScreen> {
   FocusNode emailNode = new FocusNode();
   FocusNode passwordNode = new FocusNode();
   FocusNode confirmPasswordNode = new FocusNode();
+
+  bool passwordVisible = true;
+  bool cpasswordVisible = true;
+  String myPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +57,9 @@ class _LoginScreenState extends State<RegisterScreen> {
                     buttonText: LocaleKeys.key_signup,
                     textColor: Colors.white,
                     onPressed: () {
-                      Utils.pushReplacement(context, OnBoarding1());
+                     if(_formKey.currentState.validate()){
+                       Utils.pushReplacement(context, OnBoarding1(_nameEditingController.text,_emailEditingController.text,_passwordEditingController.text));
+                     }
                     },
                     isIconDisplay: false,
                   )),
@@ -136,6 +144,7 @@ class _LoginScreenState extends State<RegisterScreen> {
 
   _form() {
     return Form(
+      key: _formKey,
       child: Padding(
         padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 50.0),
         child: Column(
@@ -186,9 +195,7 @@ class _LoginScreenState extends State<RegisterScreen> {
                   setFocusNode(context: context, focusNode: passwordNode);
                 },
                 validator: (String value) {
-                  if (value.isEmpty) {
-                    return 'Oops! please enter email id';
-                  }
+                  return emailValidator(context: context,email: value);
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -219,26 +226,35 @@ class _LoginScreenState extends State<RegisterScreen> {
                 focusNode: passwordNode,
                 controller: _passwordEditingController,
                 textInputAction: TextInputAction.next,
+                obscureText: passwordVisible,
                 onFieldSubmitted: (val) {
                   setFocusNode(context: context, focusNode: confirmPasswordNode);
 
                 },
                 validator: (String value) {
-                  if (value.isEmpty) {
-                    return 'Oops! please enter password';
-                  }
+                  myPassword = value;
+                  return passwordValidator(
+                      newPassword: value,
+                      context: context);
                 },
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: s10color,
                   // labelText: 'Rate Of Interest',
                   hintText: "Password",
-                  suffixIcon: InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.visibility_off,
-                      color: grey,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      passwordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: greenColor,
                     ),
+                    onPressed: () {
+                      setState(() {
+                        passwordVisible =
+                        !passwordVisible;
+                      });
+                    },
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -266,21 +282,29 @@ class _LoginScreenState extends State<RegisterScreen> {
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (val) {},
                 validator: (String value) {
-                  if (value.isEmpty) {
-                    return 'Oops! please enter confirm password';
-                  }
+                  return passwordMatchValidator(
+                      newPassword: myPassword,
+                      confirmPassword: value,
+                      context: context);
                 },
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: s10color,
                   // labelText: 'Rate Of Interest',
                   hintText: "Confirm Password",
-                  suffixIcon: InkWell(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.visibility_off,
-                      color: grey,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      cpasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: greenColor,
                     ),
+                    onPressed: () {
+                      setState(() {
+                        cpasswordVisible =
+                        !cpasswordVisible;
+                      });
+                    },
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),

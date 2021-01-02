@@ -12,6 +12,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
 
 class OnBoarding3 extends StatefulWidget {
+  String name, email, password, gender, motivation;
+
+  OnBoarding3(
+      this.name, this.email, this.password, this.gender, this.motivation);
+
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
 }
@@ -23,7 +28,8 @@ class _OnBoarding1State extends State<OnBoarding3> {
     1: Text('      cm      '),
   };
   var text = " ";
-
+String Age="";
+TextEditingController _textEditingController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -87,7 +93,9 @@ class _OnBoarding1State extends State<OnBoarding3> {
                                       buttonText: LocaleKeys.key_skip,
                                       width: 100,
                                       textColor: Colors.white,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age));
+                                      },
                                       isIconDisplay: false,
                                     ),
                                   )),
@@ -96,34 +104,38 @@ class _OnBoarding1State extends State<OnBoarding3> {
                               padding: EdgeInsets.only(left: 20),
                               child: Align(
                                 alignment: Alignment.center,
-                                child: Container(width: 100.0,child: TextFormField(
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(5),
-                                    ],
-                                    style: TextStyle(fontSize: 30),
-                                    keyboardType: TextInputType.number,
-                                    validator: (value) {
-                                      if (value.length < 3) {
-                                        return 'a minimum of 3 characters is required';
-                                      }
-                                    },
-                                    autofocus: true,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      suffixText: text,
-                                      suffixStyle: TextStyle(fontSize: 16),
-                                    )),),
+                                child: Container(
+                                  width: 100.0,
+                                  child: TextFormField(
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(5),
+                                      ],
+                                      style: TextStyle(fontSize: 30),
+                                      controller: _textEditingController,
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) {
+                                        if (value.length < 3) {
+                                          return 'a minimum of 3 characters is required';
+                                        }
+                                      },
+                                      autofocus: true,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        suffixText: text,
+                                        suffixStyle: TextStyle(fontSize: 16),
+                                      )),
+                                ),
                               ),
                             )
                           ],
                         ),
-                        SizedBox(height: 20,),
-
+                        SizedBox(
+                          height: 20,
+                        ),
                       ],
                     ),
                     flex: 2,
                   ),
-
                 ],
               ),
             ),
@@ -136,7 +148,13 @@ class _OnBoarding1State extends State<OnBoarding3> {
                     buttonText: LocaleKeys.key_next,
                     textColor: Colors.white,
                     onPressed: () {
-                      Utils.pushReplacement(context, OnBoarding4());
+                      Age = _textEditingController.text;
+                      if(Age.isEmpty){
+                        Utils.toast("please enter age");
+                      }else{
+                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age));
+                      }
+
                     },
                     isIconDisplay: false,
                   )),

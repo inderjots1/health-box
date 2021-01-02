@@ -40,6 +40,9 @@ dependencies:
   flutter_bloc: 5.0.0
   firebase_messaging:
   flutter_local_notifications:
+  flutter_spinkit:
+  fluttertoast:
+  http:
 
 dev_dependencies:
   flutter_test:
