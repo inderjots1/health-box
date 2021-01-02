@@ -60,7 +60,7 @@ class CustomLoader {
         child: Container(
           color: isTransparent ? Colors.transparent : Colors.transparent,
           child: Center(
-              child: SpinKitDoubleBounce(
+              child: SpinKitFadingCircle(
             color: Colors.green,
           )
 //            child: CupertinoActivityIndicator(

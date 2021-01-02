@@ -9,7 +9,9 @@ import 'package:flutter/cupertino.dart';
 const   baseUrl = "https://www.eblock6.com/healthbox/webservices/api/";
 
 const endPointAllProgram ="GetPrograms.php";
-const registerUser ="CreateUser.php";
+const registerUser = baseUrl+"CreateUser.php";
+const loginUser =baseUrl+"LoginUser.php";
+const clearToken =baseUrl+"ClearToken.php";
 
 void setFocusNode({
   @required BuildContext context,

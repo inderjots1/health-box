@@ -10,13 +10,16 @@ import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/loginResponseMode.dart';
 import 'package:health_box/model/response_model/register_response_mode.dart';
 import 'package:health_box/screens/home/homeScreen.dart';
 import 'package:health_box/utitlity/CustomLoader.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../constant.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,10 +44,19 @@ class _OnBoarding1State extends State<OnBoarding6> {
   var goalWeight="";
   TextEditingController textEditingController = new TextEditingController();
   RegisterResponseModel registerResponseModel = new RegisterResponseModel();
+  LoginResponseModel _loginResponseModel =new LoginResponseModel();
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   new FlutterLocalNotificationsPlugin();
   var token;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    firbaseMessage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +203,6 @@ class _OnBoarding1State extends State<OnBoarding6> {
                           }else{
                             _userRegister(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,widget.weight,this.goalWeight);
                           }
-                          Utils.pushRemove(context, HomeScreen());
                         },
                         isIconDisplay: false,
                       )),
@@ -206,32 +217,35 @@ class _OnBoarding1State extends State<OnBoarding6> {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
       _customLoader.showLoader(context);
+
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_name'] = name;
+      data['user_email'] = email;
+      data['user_password'] = password;
+      data['user_telep'] = " ";
+      data['user_another_telep'] = " ";
+      data['user_gender'] = gender;
+      data['user_age'] = age;
+      data['user_tall'] = tall;
+      data['user_weight'] = weight;
+      data['user_motivation'] = motivation;
+      data['user_goal_weight'] = goal;
+      data['user_firebase'] = token;
+
+      print("data ${json.encode(data)}");
+
       final response = await http.post(registerUser,
           headers: {"Accept": "application/json"},
-          body: {
-            "user_name"      : name,
-            "user_email"     : email,
-            "user_password"  : password,
-            "user_telep"     : "554663233474",
-            "user_another_telep"   : "554372373452",
-            "user_gender"          : gender,
-            "user_age"             : age,
-            "user_tall"            : tall,
-            "user_weight"          : weight,
-            "user_motivation"      : motivation,
-            "user_goal_weight"     : goal,
-            "user_firebase"        : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5casa"
-          });
-      print("reg${response.body}");
+          body: json.encode(data));
+      print("reg ${response.body}");
       if (response.body != null) {
         _customLoader.hideLoader();
         if (response.statusCode == 200) {
           var result = json.decode(response.body);
           registerResponseModel = RegisterResponseModel.fromJson(result);
-          if (registerResponseModel.status == true) {
+          if (registerResponseModel.status == "1") {
             _customLoader.hideLoader();
-            /*_userLogin(email, password);
-            clearData();*/
+            _userLogin(email, password);
           } else {
             Utils.toast(registerResponseModel.message);
             _customLoader.hideLoader();
@@ -254,6 +268,60 @@ class _OnBoarding1State extends State<OnBoarding6> {
     } else {
       Utils.toast(noInternetError);
     }
+  }
+
+  _userLogin(String email, String password) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_email'] = email;
+      data['user_password'] = password;
+
+      final response = await http.post(loginUser,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("logib ${response.body}");
+      if (response.body != null) {
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          _loginResponseModel = LoginResponseModel.fromJson(result);
+          if (_loginResponseModel.status == "1") {
+            Utils.pushRemove(context, HomeScreen());
+            Utils.toast(_loginResponseModel.message);
+          //  loginDataStoreTOLocalStorage(result);
+          } else {
+            Utils.toast(_loginResponseModel.message);
+          }
+        } else {
+          Utils.toast("${response.statusCode} ");
+        }
+      } else {
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  /*--------------------------------------------- login data store in local storage ------------------------------------------------*/
+  void loginDataStoreTOLocalStorage(result) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String user = jsonEncode(LoginResponseModel.fromJson(result));
+    sharedPreferences.setString(LocalStorage.loginResponseModel, user);
+    sharedPreferences.setBool(LocalStorage.isLogin, true);
+
+    getDataFromShared();
+  }
+
+
+  /*--------------------------------------------- get data from Local Storage -------------------------------------------------------*/
+
+  void getDataFromShared() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    Map userMap = jsonDecode(
+        sharedPreferences.getString(LocalStorage.loginResponseModel));
+    var user = LoginResponseModel.fromJson(userMap);
   }
 
   void firbaseMessage() {
@@ -287,6 +355,8 @@ class _OnBoarding1State extends State<OnBoarding6> {
 
   update(String mytoken) {
     print(mytoken);
+    token = mytoken;
+
     if (this.token == null) {
     } else {
       //_tokenUpdate(mytoken);
@@ -323,5 +393,11 @@ class _OnBoarding1State extends State<OnBoarding6> {
         Platform.isIOS ? msg["body"] : msg["data"]["body"],
         platformChannelSpecifics,
         payload: jsonEncode(msg));
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _customLoader.hideLoader();
   }
 }

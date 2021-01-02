@@ -1,16 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/loginResponseMode.dart';
 import 'package:health_box/screens/authentication/forgot_password.dart';
 import 'package:health_box/screens/authentication/register.dart';
 import 'package:health_box/screens/home/homeScreen.dart';
+import 'package:health_box/utitlity/CustomLoader.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constant.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -18,11 +25,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  var _formKey = GlobalKey<FormState>();
+
   TextEditingController _emailEditingController = new TextEditingController();
   TextEditingController _passwordEditingController =
       new TextEditingController();
   FocusNode emailNode = new FocusNode();
   FocusNode passwordNode = new FocusNode();
+  LoginResponseModel _loginResponseModel = new LoginResponseModel();
+  CustomLoader _customLoader = new CustomLoader();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     buttonText: LocaleKeys.key_login,
                     textColor: Colors.white,
                     onPressed: () {
-                      Utils.pushReplacement(context, HomeScreen());
+                      if(_formKey.currentState.validate()){
+                       _userLogin(_emailEditingController.text, _passwordEditingController.text);
+                      }
+
                     },
                     isIconDisplay: false,
                   )),
@@ -60,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   buttonText: LocaleKeys.key_create_account,
                   textColor: Colors.white,
                   onPressed: () {
+
                     Utils.pushReplacement(context, RegisterScreen());
 
                   },
@@ -131,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _form() {
-    return Form(
+    return Form(key: _formKey,
       child: Padding(
         padding: EdgeInsets.only(left: 15.0, right: 15.0, top: 50.0),
         child: Column(
@@ -220,5 +235,66 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+
+  _userLogin(String email, String password) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_email'] = email;
+      data['user_password'] = password;
+      
+      final response = await http.post(loginUser,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("logib ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          _customLoader.hideLoader();
+          var result = json.decode(response.body);
+          _loginResponseModel = LoginResponseModel.fromJson(result);
+          if (_loginResponseModel.status == "1") {
+            _customLoader.hideLoader();
+            Utils.pushRemove(context, HomeScreen());
+            Utils.toast(_loginResponseModel.message);
+            //  loginDataStoreTOLocalStorage(result);
+          } else {
+            _customLoader.hideLoader();
+            Utils.toast(_loginResponseModel.message);
+          }
+        } else {
+          _customLoader.hideLoader();
+          Utils.toast("${response.statusCode} ");
+        }
+      } else {
+        _customLoader.hideLoader();
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  /*--------------------------------------------- login data store in local storage ------------------------------------------------*/
+  void loginDataStoreTOLocalStorage(result) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String user = jsonEncode(LoginResponseModel.fromJson(result));
+    sharedPreferences.setString(LocalStorage.loginResponseModel, user);
+sharedPreferences.setBool(LocalStorage.isLogin, true);
+    getDataFromShared();
+  }
+
+
+  /*--------------------------------------------- get data from Local Storage -------------------------------------------------------*/
+
+  void getDataFromShared() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    Map userMap = jsonDecode(
+        sharedPreferences.getString(LocalStorage.loginResponseModel));
+    var user = LoginResponseModel.fromJson(userMap);
   }
 }

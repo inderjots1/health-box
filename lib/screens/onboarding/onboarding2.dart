@@ -78,7 +78,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                               onTap: () {
                                 setState(() {
                                   currentIndex = index;
-                                  motivation = list2[index];
+                                  motivation = list2[index].tr();
                                 });
                               },
                               child: Container(

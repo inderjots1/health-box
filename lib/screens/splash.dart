@@ -6,7 +6,9 @@ import 'package:health_box/constants/assets.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/screens/authentication/login.dart';
 import 'package:health_box/screens/authentication/register.dart';
+import 'package:health_box/screens/home/homeScreen.dart';
 import 'package:health_box/screens/onboarding/onboarding1.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -36,6 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   isChanged() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
     print("sanjadsn ${sharedPreferences.getBool("language")}");
     if (sharedPreferences.getBool("language") != null) {
       isSwitched = sharedPreferences.getBool("language");

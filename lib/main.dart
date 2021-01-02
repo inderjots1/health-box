@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_offline/flutter_offline.dart';
+import 'package:health_box/screens/home/homeScreen.dart';
 import 'package:health_box/screens/splash.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -15,20 +17,41 @@ void main() {
       child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  var islogin;
+  @override
+  Future<void> initState()  {
+    // TODO: implement initState
+    super.initState();
+    iswork();
+
+  }
+
+  iswork() async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    islogin= sharedPreferences.getBool(LocalStorage.isLogin);
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: [Locale('en', 'US')],
-      locale: context.locale/*=="ar_DZ"?Locale('en', 'US'):Locale('en', 'US')*/,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: SplashScreen());
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: [Locale('en', 'US')],
+        locale: context.locale/*=="ar_DZ"?Locale('en', 'US'):Locale('en', 'US')*/,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home:islogin==false ?SplashScreen():HomeScreen());
   }
 }
+
