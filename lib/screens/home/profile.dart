@@ -1,14 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/clear_token.dart';
+import 'package:health_box/model/response_model/loginResponseMode.dart';
 
 import 'package:health_box/screens/order/myOrder.dart';
 import 'package:health_box/screens/order/sucessMessage.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../constant.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -18,6 +26,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isSwitched = false;
   bool isSwitched1 = false;
+  var notificationToken ;
+  LoginResponseModel user;
+  ClearTokenResponseModel clearTokenResponseModel = new ClearTokenResponseModel();
 
   @override
   void initState() {
@@ -29,6 +40,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   isChanged() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     print("sanjadsn ${sharedPreferences.getBool("language")}");
+    Map userMap = jsonDecode(
+        sharedPreferences.getString(LocalStorage.loginResponseModel));
+    user = LoginResponseModel.fromJson(userMap);
+    notificationToken = user.user.userFirebase;
+    if(notificationToken==null){
+      setState(() {
+        isSwitched1 = false;
+      });
+    }else{
+      setState(() {
+        isSwitched1 = true;
+      });
+    }
     if (sharedPreferences.getBool("language") != null) {
       isSwitched = sharedPreferences.getBool("language");
       setState(() {
@@ -366,6 +390,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           setState(() {
                             isSwitched1 = value;
                             print(isSwitched1);
+                            if(isSwitched1==true){
+
+                            }else{
+                              _disableNotification(user.user.userEmail,user.user.userPassword);
+                            }
                           });
                         },
                         activeTrackColor: Colors.lightGreenAccent,
@@ -550,5 +579,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   isChange(bool bool) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.setBool("language", bool);
+  }
+
+  _disableNotification(String email, String password) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_email'] = email;
+      data['user_password'] = password;
+
+      final response = await http.post(clearToken,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("logib ${response.body}");
+      if (response.body != null) {
+
+        if (response.statusCode == 200) {
+
+          var result = json.decode(response.body);
+          clearTokenResponseModel = ClearTokenResponseModel.fromJson(result);
+          if (clearTokenResponseModel.status == "1") {
+            notificationToken ==null;
+            Utils.toast("your Notification is Disable");
+
+          } else {
+            Utils.toast(clearTokenResponseModel.message);
+          }
+        } else {
+          Utils.toast("${response.statusCode} ");
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
   }
 }

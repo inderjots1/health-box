@@ -260,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _customLoader.hideLoader();
             Utils.pushRemove(context, HomeScreen());
             Utils.toast(_loginResponseModel.message);
-            //  loginDataStoreTOLocalStorage(result);
+             loginDataStoreTOLocalStorage(result);
           } else {
             _customLoader.hideLoader();
             Utils.toast(_loginResponseModel.message);
