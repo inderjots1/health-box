@@ -1,9 +1,16 @@
 import 'package:calendar_flutter/calendar_event.dart';
 import 'package:calendar_flutter/calendar_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/all_programs_response_model.dart';
+import 'package:health_box/network/home_bloc.dart';
+import 'package:health_box/network/home_event.dart';
+import 'package:health_box/network/network_exceptions.dart';
+import 'package:health_box/network/result_state.dart';
 
 import 'package:health_box/screens/order/subscription.dart';
 import 'package:health_box/utitlity/Utils.dart';
@@ -17,9 +24,40 @@ class MealPlan extends StatefulWidget {
 }
 
 class _MealPlanState extends State<MealPlan> {
+  GetAllProgramsResponseModel _getAllProgramsResponseModel = new GetAllProgramsResponseModel();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.bloc<HomeBloc>().add(LoadMovies());
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+        child: Scaffold(
+            appBar: _header(),
+            body: BlocBuilder<HomeBloc, ResultState>(
+              builder: (BuildContext context, ResultState state) {
+                return state.when(
+                  loading: () {
+                    return Center(child: CircularProgressIndicator());
+                  },
+                  idle: () {
+                    return Container();
+                  },
+                  data: (data) {
+                    _getAllProgramsResponseModel = data;
+                    return Text(_getAllProgramsResponseModel.programs[0].programCost);
+                  },
+                  error: (NetworkExceptions error) {
+                    return Text(NetworkExceptions.getErrorMessage(error));
+                  },
+                );
+              },
+            ))
+    );
+    /* return SafeArea(
         child: Scaffold(
           appBar: _header(),
             body: Padding(
@@ -61,7 +99,7 @@ class _MealPlanState extends State<MealPlan> {
           ],
         ),
       ),
-    )));
+    )));*/
   }
 
   Widget _header() {
@@ -69,25 +107,26 @@ class _MealPlanState extends State<MealPlan> {
       elevation: 0.0,
       backgroundColor: Colors.white,
       title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-         LocaleKeys.key_pick_meal_plan,
-          style: TextStyle(color: Colors.black, fontSize: 25.0),
-        ).tr(),
-        InkWell(
-          onTap: () {},
-          child: Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Image(
-              image: AssetImage(Assets.settings),
-              width: 30.0,
-              height: 30.0,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            LocaleKeys.key_pick_meal_plan,
+            style: TextStyle(color: Colors.black, fontSize: 25.0),
+          ).tr(),
+          InkWell(
+            onTap: () {},
+            child: Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Image(
+                image: AssetImage(Assets.settings),
+                width: 30.0,
+                height: 30.0,
+              ),
             ),
-          ),
-        )
-      ],
-    ),);
+          )
+        ],
+      ),
+    );
   }
 
   _calender() {
@@ -113,7 +152,7 @@ class _MealPlanState extends State<MealPlan> {
     CalendarEvent.setListAndUpdateMap(eventsList);
   }
 
-  Widget _vegetarianPlan(String text,Color color) {
+  Widget _vegetarianPlan(String text, Color color) {
     return Text(
       text,
       style: TextStyle(fontSize: 18.0, color: color),
@@ -121,20 +160,25 @@ class _MealPlanState extends State<MealPlan> {
   }
 
   _vegPlanCard() {
-    return InkWell(onTap: (){
-      Utils.pushReplacement(context, SubscriptionPlan());
-    },child: Utils.cardView(Assets.veg_plan, LocaleKeys.key_vegh1,
-        LocaleKeys.key_vegh2, Colors.white, Colors.black, "102Kd"),);
+    return InkWell(
+      onTap: () {
+        Utils.pushReplacement(context, SubscriptionPlan());
+      },
+      child: Utils.cardView(Assets.veg_plan, LocaleKeys.key_vegh1,
+          LocaleKeys.key_vegh2, Colors.white, Colors.black, "102Kd"),
+    );
   }
 
   _healthyfiidPlan() {
     return Utils.cardView(Assets.smile, LocaleKeys.key_health1,
         LocaleKeys.key_health2, greenColor, Colors.white, "105Kd");
   }
+
   ketoCard() {
     return Utils.cardView(Assets.veg_plan, LocaleKeys.key_keto1,
         LocaleKeys.key_keto2, Colors.white, Colors.black, "145Kd");
   }
+
   lossWeight() {
     return Utils.cardView(Assets.veg_plan, LocaleKeys.key_loose_plan1,
         LocaleKeys.key_loose_plan2, Colors.white, Colors.black, "145Kd");

@@ -10,7 +10,7 @@ import 'dio_client.dart';
 
 class APIRepository {
   DioClient dioClient;
-  String _baseUrl = "";
+  String _baseUrl = "https://www.eblock6.com/healthbox/webservices/api/";
 
   APIRepository() {
     var dio = Dio();
@@ -21,7 +21,7 @@ class APIRepository {
   Future<ApiResult<GetAllProgramsResponseModel>> fetchMovieList() async {
     try {
       final response = await dioClient
-          .get("movie/popular");
+          .get("GetPrograms.php");
 
       return ApiResult.success(data: GetAllProgramsResponseModel.fromJson(response));
     } catch (e) {

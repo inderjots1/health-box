@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health_box/connect.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
+import 'package:health_box/network/home_bloc.dart';
+import 'package:health_box/network/home_event.dart';
 import 'package:health_box/screens/home/meal_plan.dart';
 import 'package:health_box/screens/home/profile.dart';
 
@@ -24,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-   // checkInternet().checkConnection(context);
+
   }
 
   @override

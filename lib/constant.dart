@@ -12,6 +12,7 @@ const endPointAllProgram ="GetPrograms.php";
 const registerUser = baseUrl+"CreateUser.php";
 const loginUser =baseUrl+"LoginUser.php";
 const clearToken =baseUrl+"ClearToken.php";
+const updateUser =baseUrl+"UpdateUser.php";
 
 void setFocusNode({
   @required BuildContext context,

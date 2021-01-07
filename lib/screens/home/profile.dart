@@ -1,18 +1,22 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/model/response_model/clear_token.dart';
 import 'package:health_box/model/response_model/loginResponseMode.dart';
+import 'package:health_box/model/response_model/update_user_response_model.dart';
 
 import 'package:health_box/screens/order/myOrder.dart';
 import 'package:health_box/screens/order/sucessMessage.dart';
 import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constant.dart';
@@ -29,12 +33,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var notificationToken ;
   LoginResponseModel user;
   ClearTokenResponseModel clearTokenResponseModel = new ClearTokenResponseModel();
+  FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  new FlutterLocalNotificationsPlugin();
+  UpdateUserResponseModel updateUserResponseModel = new UpdateUserResponseModel();
+  var token;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     isChanged();
+    firbaseMessage();
   }
 
   isChanged() async {
@@ -119,11 +129,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(
                 width: 10.0,
               ),
-              Image(
-                image: AssetImage(Assets.edit_icon),
-                height: 20.0,
-                width: 20.0,
-              ),
+             InkWell(onTap: (){
+               emailUpdateDialog(context);
+             },child:  Image(
+               image: AssetImage(Assets.edit_icon),
+               height: 20.0,
+               width: 20.0,
+             ),)
             ],
           ),
           SizedBox(
@@ -157,11 +169,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                    Image(
+                    InkWell(onTap: (){
+                      phoneUpdateDialog(context);
+                    },child: Image(
                       image: AssetImage(Assets.edit_icon),
                       height: 15.0,
                       width: 15.0,
-                    ),
+                    ),)
                   ],
                 ),
               ),
@@ -185,11 +199,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                    Image(
-                      image: AssetImage(Assets.edit_icon),
-                      height: 15.0,
-                      width: 15.0,
-                    ),
+                   InkWell(onTap: (){
+                     weightUpdateDialog(context);
+                   },child:  Image(
+                     image: AssetImage(Assets.edit_icon),
+                     height: 15.0,
+                     width: 15.0,
+                   ),)
                   ],
                 ),
               ),
@@ -211,11 +227,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                    Image(
+                    InkWell(onTap: (){
+                      tallUpdateDialog(context);
+                    },child: Image(
                       image: AssetImage(Assets.edit_icon),
                       height: 15.0,
                       width: 15.0,
-                    ),
+                    ),)
                   ],
                 ),
               ),
@@ -391,7 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             isSwitched1 = value;
                             print(isSwitched1);
                             if(isSwitched1==true){
-
+                              _notificationOn();
                             }else{
                               _disableNotification(user.user.userEmail,user.user.userPassword);
                             }
@@ -432,34 +450,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Card(
             child: Column(
               children: [
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Image(
-                        image: AssetImage(Assets.share),
-                        height: 40.0,
-                        width: 40.0,
-                      ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
-                      Expanded(
-                          child: Text(
-                            LocaleKeys.key_share,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400),
-                          ).tr()),
-                      Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        size: 20.0,
-                        color: Colors.grey,
-                      )
-                    ],
-                  ),
+              InkWell(onTap: (){
+                Share.share('check out my website https://example.com', subject: 'Look what I made!');
+
+              },child:   Container(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Image(
+                      image: AssetImage(Assets.share),
+                      height: 40.0,
+                      width: 40.0,
+                    ),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Expanded(
+                        child: Text(
+                          LocaleKeys.key_share,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w400),
+                        ).tr()),
+                    Icon(
+                      Icons.arrow_forward_ios_sharp,
+                      size: 20.0,
+                      color: Colors.grey,
+                    )
+                  ],
                 ),
+              ),),
                 Divider(
                   indent: 15.0,
                   endIndent: 15.0,
@@ -614,5 +635,649 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } else {
       Utils.toast(noInternetError);
     }
+  }
+
+  _notificationOn() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+
+
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_id'] = user.user.userId;
+      data['user_name'] = user.user.userName;
+      data['user_email'] = user.user.userEmail;
+      data['user_password'] = user.user.userPassword;
+      data['user_telep'] = "54678451 ";
+      data['user_another_telep'] = "12345678";
+      if(user.user.userGender=="Male"){
+        data['user_gender'] = "1";
+      }else{
+        data['user_gender'] = "2";
+      }
+
+      data['user_age'] = user.user.userAge;
+      data['user_tall'] = user.user.userTall;
+      data['user_weight'] = user.user.userWeight;
+      data['user_motivation'] = user.user.userMotivation;
+      data['user_goal_weight'] = user.user.userGoalWeight;
+      data['user_firebase'] = token;
+      data['jwt'] = user.jwt;
+
+      print("data ${json.encode(data)}");
+
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+
+
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+
+          } else {
+            Utils.toast("${response.statusCode}");
+
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  void firbaseMessage() {
+    var android = new AndroidInitializationSettings('mipmap/ic_launcher');
+    var ios = new IOSInitializationSettings();
+    var platform = new InitializationSettings(android:android,iOS:  ios);
+    flutterLocalNotificationsPlugin.initialize(platform);
+
+    firebaseMessaging.configure(
+      onLaunch: (Map<String, dynamic> msg) {
+        print(" onLaunch called ${(msg)}");
+      },
+      onResume: (Map<String, dynamic> msg) {
+        print(" onResume called ${(msg)}");
+      },
+      onMessage: (Map<String, dynamic> msg) {
+        showNotification(msg);
+        print(" onMessage called ${(msg)}");
+      },
+    );
+    firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, alert: true, badge: true));
+    firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings setting) {
+      print('IOS Setting Registed');
+    });
+    firebaseMessaging.getToken().then((mytoken) {
+      update(mytoken);
+    });
+  }
+
+  update(String mytoken) {
+    print(mytoken);
+    token = mytoken;
+
+    if (this.token == null) {
+    } else {
+      //_tokenUpdate(mytoken);
+    }
+  }
+
+  showNotification(Map<String, dynamic> msg) async {
+    var mesaj = Person(
+      name: Platform.isIOS ? msg["title"] : msg["data"]["title"],
+      key: '1',
+    );
+    //iconSource: IconSource.FilePath);
+    var mesajStyle = MessagingStyleInformation(mesaj, messages: [
+      Message(Platform.isIOS ? msg["body"] : msg["data"]["body"],
+          DateTime.now(), mesaj)
+    ]);
+
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      '1234',
+      'Yeni Mesaj',
+      'your channel description',
+      /*   styleInformation: mesajStyle,*/
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    );
+    var iOSPlatformChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics = NotificationDetails(android:
+    androidPlatformChannelSpecifics, iOS:iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0,
+        Platform.isIOS ? msg["title"] : msg["data"]["title"],
+        Platform.isIOS ? msg["body"] : msg["data"]["body"],
+        platformChannelSpecifics,
+        payload: jsonEncode(msg));
+  }
+
+  emailUpdateDialog(BuildContext context) {
+    var _formKey = GlobalKey<FormState>();
+    TextEditingController textEditingController = new TextEditingController();
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return Align(
+            alignment: Alignment.center,
+            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: SizedBox(
+
+                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Edit Email",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                  fontSize: 18.0),
+                            ),
+                            InkWell(onTap: (){
+                              Navigator.of(context, rootNavigator: true).pop('dialog');
+                            },child: Icon(Icons.cancel),)
+                          ],)),
+                    Form(
+                      key: _formKey, child: Column(children: <Widget>[
+
+                      Padding(padding: EdgeInsets.only(top: 20.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.text,
+
+                            textInputAction: TextInputAction.done,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400),
+                            maxLines: 1,
+                            controller: textEditingController,
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Oops! please enter email -id';
+                              }
+                            },
+                            decoration: new InputDecoration(
+                              labelText: "Email",
+                              labelStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              hintText: "Email",
+                              contentPadding: EdgeInsets.only(
+                                  left: 15,
+                                  bottom: 11,
+                                  top: 11,
+                                  right: 15),
+
+                            ),
+                          ))
+                    ],),
+                    ),
+
+                    Padding(
+                        padding:
+                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: MaterialButton(
+                            minWidth: 50.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            onPressed: () =>
+                            {
+                              if (_formKey.currentState.validate()) {
+                                Utils.hideKeyboard(context),
+                                Navigator.of(context, rootNavigator: true).pop('dialog')
+
+                              }
+                            },
+                            color: greenColor,
+                            padding: EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // Replace with a Row for horizontal icon + text
+                              children: <Widget>[
+                                Text(
+                                  "Update",
+                                  style: TextStyle(color: Colors.white),
+                                ).tr(),
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),),),)
+              ,
+            ),)
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
+  phoneUpdateDialog(BuildContext context) {
+    var _formKey = GlobalKey<FormState>();
+    TextEditingController textEditingController = new TextEditingController();
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return Align(
+            alignment: Alignment.center,
+            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: SizedBox(
+
+                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Edit Mobile Number",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                  fontSize: 18.0),
+                            ),
+                            InkWell(onTap: (){
+                              Navigator.of(context, rootNavigator: true).pop('dialog');
+                            },child: Icon(Icons.cancel),)
+                          ],)),
+                    Form(
+                      key: _formKey, child: Column(children: <Widget>[
+
+                      Padding(padding: EdgeInsets.only(top: 20.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+
+                            textInputAction: TextInputAction.done,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400),
+                            maxLines: 1,
+                            controller: textEditingController,
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Oops! please enter mobile no';
+                              }
+                            },
+                            decoration: new InputDecoration(
+                              labelText: "Mobile Number",
+                              labelStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              hintText: "Mobile Number",
+                              contentPadding: EdgeInsets.only(
+                                  left: 15,
+                                  bottom: 11,
+                                  top: 11,
+                                  right: 15),
+
+                            ),
+                          ))
+                    ],),
+                    ),
+
+                    Padding(
+                        padding:
+                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: MaterialButton(
+                            minWidth: 50.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            onPressed: () =>
+                            {
+                              if (_formKey.currentState.validate()) {
+                                Utils.hideKeyboard(context),
+                                Navigator.of(context, rootNavigator: true).pop('dialog')
+
+                              }
+                            },
+                            color: greenColor,
+                            padding: EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // Replace with a Row for horizontal icon + text
+                              children: <Widget>[
+                                Text(
+                                  "Update",
+                                  style: TextStyle(color: Colors.white),
+                                ).tr(),
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),),),)
+              ,
+            ),)
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
+  weightUpdateDialog(BuildContext context) {
+    var _formKey = GlobalKey<FormState>();
+    TextEditingController textEditingController = new TextEditingController();
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return Align(
+            alignment: Alignment.center,
+            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: SizedBox(
+
+                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Edit Weight",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                  fontSize: 18.0),
+                            ),
+                            InkWell(onTap: (){
+                              Navigator.of(context, rootNavigator: true).pop('dialog');
+                            },child: Icon(Icons.cancel),)
+                          ],)),
+                    Form(
+                      key: _formKey, child: Column(children: <Widget>[
+
+                      Padding(padding: EdgeInsets.only(top: 20.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+
+                            textInputAction: TextInputAction.done,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400),
+                            maxLines: 1,
+                            controller: textEditingController,
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Oops! please enter weight';
+                              }
+                            },
+                            decoration: new InputDecoration(
+                              labelText: "Weight",
+                              labelStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              hintText: "Weight",
+                              contentPadding: EdgeInsets.only(
+                                  left: 15,
+                                  bottom: 11,
+                                  top: 11,
+                                  right: 15),
+
+                            ),
+                          ))
+                    ],),
+                    ),
+
+                    Padding(
+                        padding:
+                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: MaterialButton(
+                            minWidth: 50.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            onPressed: () =>
+                            {
+                              if (_formKey.currentState.validate()) {
+                                Utils.hideKeyboard(context),
+                                Navigator.of(context, rootNavigator: true).pop('dialog')
+
+                              }
+                            },
+                            color: greenColor,
+                            padding: EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // Replace with a Row for horizontal icon + text
+                              children: <Widget>[
+                                Text(
+                                  "Update",
+                                  style: TextStyle(color: Colors.white),
+                                ).tr(),
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),),),)
+              ,
+            ),)
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
+  tallUpdateDialog(BuildContext context) {
+    var _formKey = GlobalKey<FormState>();
+    TextEditingController textEditingController = new TextEditingController();
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return Align(
+            alignment: Alignment.center,
+            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              child: SizedBox(
+
+                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          Text(
+                            "Edit Tall",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                                fontSize: 18.0),
+                          ),
+                            InkWell(onTap: (){
+                              Navigator.of(context, rootNavigator: true).pop('dialog');
+                            },child: Icon(Icons.cancel),)
+                        ],)),
+                    Form(
+                      key: _formKey, child: Column(children: <Widget>[
+
+                      Padding(padding: EdgeInsets.only(top: 20.0),
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+
+                            textInputAction: TextInputAction.done,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w400),
+                            maxLines: 1,
+
+
+                            controller: textEditingController,
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Oops! please enter tall';
+                              }
+                            },
+                            decoration: new InputDecoration(
+                              labelText: "Tall",
+                              labelStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w400),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.black)),
+                              hintText: "Tall",
+                              contentPadding: EdgeInsets.only(
+                                  left: 15,
+                                  bottom: 11,
+                                  top: 11,
+                                  right: 15),
+
+                            ),
+                          ))
+                    ],),
+                    ),
+
+                    Padding(
+                        padding:
+                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: MaterialButton(
+                            minWidth: 50.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            onPressed: () =>
+                            {
+                              if (_formKey.currentState.validate()) {
+                                Utils.hideKeyboard(context),
+                                Navigator.of(context, rootNavigator: true).pop('dialog')
+
+                              }
+                            },
+                            color: greenColor,
+                            padding: EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // Replace with a Row for horizontal icon + text
+                              children: <Widget>[
+                                Text(
+                                  "Update",
+                                  style: TextStyle(color: Colors.white),
+                                ).tr(),
+                              ],
+                            ),
+                          ),
+                        ))
+                  ],
+                ),),),)
+              ,
+            ),)
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: Offset(0, 1), end: Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
   }
 }
