@@ -6,8 +6,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 
-const   baseUrl = "https://www.eblock6.com/healthbox/webservices/api/";
+const   baseUrl = "http://healthyboxq8.com/api/webservices/api/";
 
+const endPointTokenGeneration =baseUrl+"autherization.php";
 const endPointAllProgram ="GetPrograms.php";
 const registerUser = baseUrl+"CreateUser.php";
 const loginUser =baseUrl+"LoginUser.php";

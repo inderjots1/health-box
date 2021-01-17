@@ -10,6 +10,7 @@ import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/auth_token.dart';
 import 'package:health_box/model/response_model/loginResponseMode.dart';
 import 'package:health_box/model/response_model/register_response_mode.dart';
 import 'package:health_box/screens/home/homeScreen.dart';
@@ -44,6 +45,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
   var goalWeight="";
   TextEditingController textEditingController = new TextEditingController();
   RegisterResponseModel registerResponseModel = new RegisterResponseModel();
+  AuthTokenGenerationResposeModel _authTokenGenerationResposeModel = new AuthTokenGenerationResposeModel();
   LoginResponseModel _loginResponseModel =new LoginResponseModel();
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -56,6 +58,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
     // TODO: implement initState
     super.initState();
     firbaseMessage();
+   // getSecurityLevelToken();
   }
 
   @override
@@ -217,13 +220,15 @@ class _OnBoarding1State extends State<OnBoarding6> {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
       _customLoader.showLoader(context);
+     await getSecurityLevelToken();
+  var tokens=    _authTokenGenerationResposeModel.jwt;
 
       final Map<String, dynamic> data = new Map<String, dynamic>();
       data['user_name'] = name;
       data['user_email'] = email;
       data['user_password'] = password;
-      data['user_telep'] = " ";
-      data['user_another_telep'] = " ";
+      data['user_telep'] = "78945612";
+      data['user_another_telep'] = "78945612";
       data['user_gender'] = gender;
       data['user_age'] = age;
       data['user_tall'] = tall;
@@ -233,9 +238,9 @@ class _OnBoarding1State extends State<OnBoarding6> {
       data['user_firebase'] = token;
 
       print("data ${json.encode(data)}");
-
+      print("reg ${tokens}");
       final response = await http.post(registerUser,
-          headers: {"Accept": "application/json"},
+          headers: {"Accept": "application/json","Authorization":"Bearer ${tokens}"},
           body: json.encode(data));
       print("reg ${response.body}");
       if (response.body != null) {
@@ -273,12 +278,13 @@ class _OnBoarding1State extends State<OnBoarding6> {
   _userLogin(String email, String password) async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
+      getSecurityLevelToken();
       final Map<String, dynamic> data = new Map<String, dynamic>();
       data['user_email'] = email;
       data['user_password'] = password;
 
       final response = await http.post(loginUser,
-          headers: {"Accept": "application/json"},
+          headers: {"Accept": "application/json","Authorization":"Bearer ${_authTokenGenerationResposeModel.jwt}"},
           body: json.encode(data));
       print("logib ${response.body}");
       if (response.body != null) {
@@ -399,5 +405,39 @@ class _OnBoarding1State extends State<OnBoarding6> {
     // TODO: implement dispose
     super.dispose();
     _customLoader.hideLoader();
+  }
+
+  Future<void> getSecurityLevelToken() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['token_username'] = "HealthyBox_User";
+      data['token_password'] = "1bV3LzgA8Box01iJU6Q";
+
+      final response = await http.post(endPointTokenGeneration,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("logib ${response.body}");
+      if (response.body != null) {
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          _authTokenGenerationResposeModel = AuthTokenGenerationResposeModel.fromJson(result);
+          if (_authTokenGenerationResposeModel.status == "1") {
+
+
+            //  loginDataStoreTOLocalStorage(result);
+          } else {
+            Utils.toast(_loginResponseModel.message);
+          }
+        } else {
+          Utils.toast("Something went wrong, Server under maintance..");
+        }
+      } else {
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
   }
 }
