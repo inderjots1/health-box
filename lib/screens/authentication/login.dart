@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/auth_token.dart';
 import 'package:health_box/model/response_model/loginResponseMode.dart';
 import 'package:health_box/screens/authentication/forgot_password.dart';
 import 'package:health_box/screens/authentication/register.dart';
@@ -30,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _emailEditingController = new TextEditingController();
   TextEditingController _passwordEditingController =
       new TextEditingController();
+  AuthTokenGenerationResposeModel  _authTokenGenerationResposeModel = new AuthTokenGenerationResposeModel();
   FocusNode emailNode = new FocusNode();
   FocusNode passwordNode = new FocusNode();
   LoginResponseModel _loginResponseModel = new LoginResponseModel();
@@ -242,12 +244,14 @@ class _LoginScreenState extends State<LoginScreen> {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
       _customLoader.showLoader(context);
+      await getSecurityLevelToken();
+      var tokens = _authTokenGenerationResposeModel.jwt;
       final Map<String, dynamic> data = new Map<String, dynamic>();
       data['user_email'] = email;
       data['user_password'] = password;
       
       final response = await http.post(loginUser,
-          headers: {"Accept": "application/json"},
+          headers: {"Accept": "application/json","Authorization":"Bearer ${tokens}"},
           body: json.encode(data));
       print("logib ${response.body}");
       if (response.body != null) {
@@ -296,5 +300,39 @@ sharedPreferences.setBool(LocalStorage.isLogin, true);
     Map userMap = jsonDecode(
         sharedPreferences.getString(LocalStorage.loginResponseModel));
     var user = LoginResponseModel.fromJson(userMap);
+  }
+
+  Future<void> getSecurityLevelToken() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['token_username'] = "HealthyBox_User";
+      data['token_password'] = "1bV3LzgA8Box01iJU6Q";
+
+      final response = await http.post(endPointTokenGeneration,
+          headers: {"Accept": "application/json"},
+          body: json.encode(data));
+      print("logib ${response.body}");
+      if (response.body != null) {
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          _authTokenGenerationResposeModel = AuthTokenGenerationResposeModel.fromJson(result);
+          if (_authTokenGenerationResposeModel.status == "1") {
+
+
+            //  loginDataStoreTOLocalStorage(result);
+          } else {
+            Utils.toast(_loginResponseModel.message);
+          }
+        } else {
+          Utils.toast("Something went wrong, Server under maintance..");
+        }
+      } else {
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
   }
 }
