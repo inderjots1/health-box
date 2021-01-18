@@ -35,23 +35,17 @@ dependencies:
   easy_localization:
   flutter_offline:
   data_connection_checker:
-  dio: 3.0.8
-  freezed: 0.10.9
+  image_picker: ^0.6.7+4
   firebase_messaging:
   flutter_local_notifications:
   flutter_spinkit:
   fluttertoast:
   http:
   share: ^0.6.5+4
-  bloc: ^6.1.0
-    # Widgets that make it easy to integrate blocs and cubits into Flutter.
-  flutter_bloc: ^6.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner:
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

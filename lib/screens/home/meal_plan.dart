@@ -1,16 +1,12 @@
 import 'package:calendar_flutter/calendar_event.dart';
 import 'package:calendar_flutter/calendar_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/model/response_model/all_programs_response_model.dart';
-import 'package:health_box/network/home_bloc.dart';
-import 'package:health_box/network/home_event.dart';
-import 'package:health_box/network/network_exceptions.dart';
-import 'package:health_box/network/result_state.dart';
+
 
 import 'package:health_box/screens/order/subscription.dart';
 import 'package:health_box/utitlity/Utils.dart';
@@ -29,12 +25,12 @@ class _MealPlanState extends State<MealPlan> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    context.bloc<HomeBloc>().add(LoadMovies());
+  //  context.bloc<HomeBloc>().add(LoadMovies());
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+/*    return SafeArea(
         child: Scaffold(
             appBar: _header(),
             body: BlocBuilder<HomeBloc, ResultState>(
@@ -56,8 +52,8 @@ class _MealPlanState extends State<MealPlan> {
                 );
               },
             ))
-    );
-    /* return SafeArea(
+    );*/
+     return SafeArea(
         child: Scaffold(
           appBar: _header(),
             body: Padding(
@@ -99,7 +95,7 @@ class _MealPlanState extends State<MealPlan> {
           ],
         ),
       ),
-    )));*/
+    )));
   }
 
   Widget _header() {

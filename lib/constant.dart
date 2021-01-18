@@ -9,9 +9,11 @@ import 'package:flutter/cupertino.dart';
 const   baseUrl = "http://healthyboxq8.com/api/webservices/api/";
 
 const endPointTokenGeneration =baseUrl+"autherization.php";
+const uploadImage =baseUrl+"upload_images.php";
 const endPointAllProgram ="GetPrograms.php";
 const registerUser = baseUrl+"CreateUser.php";
 const loginUser =baseUrl+"LoginUser.php";
+const getCurrentUser =baseUrl+"GetUserProfile.php";
 const clearToken =baseUrl+"ClearToken.php";
 const updateUser =baseUrl+"UpdateUser.php";
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,14 +9,18 @@ import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/model/response_model/clear_token.dart';
+import 'package:health_box/model/response_model/get_current_profile_response_model.dart';
+import 'package:health_box/model/response_model/image_upload.dart';
 import 'package:health_box/model/response_model/loginResponseMode.dart';
 import 'package:health_box/model/response_model/update_user_response_model.dart';
 
 import 'package:health_box/screens/order/myOrder.dart';
 import 'package:health_box/screens/order/sucessMessage.dart';
+import 'package:health_box/utitlity/CustomLoader.dart';
 import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,14 +35,23 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isSwitched = false;
   bool isSwitched1 = false;
-  var notificationToken ;
+  var notificationToken;
+
   LoginResponseModel user;
-  ClearTokenResponseModel clearTokenResponseModel = new ClearTokenResponseModel();
+  ClearTokenResponseModel clearTokenResponseModel =
+      new ClearTokenResponseModel();
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  new FlutterLocalNotificationsPlugin();
-  UpdateUserResponseModel updateUserResponseModel = new UpdateUserResponseModel();
+      new FlutterLocalNotificationsPlugin();
+  UpdateUserResponseModel updateUserResponseModel =
+      new UpdateUserResponseModel();
+  GetProfileResponseModel _getProfileResponseModel =
+      new GetProfileResponseModel();
+  ImageUploadResponseModel _imageUploadResponseModel =
+      new ImageUploadResponseModel();
   var token;
+  File imageFile;
+  CustomLoader _customLoader = new CustomLoader();
 
   @override
   void initState() {
@@ -45,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     isChanged();
     firbaseMessage();
+    getCurrentProfile();
   }
 
   isChanged() async {
@@ -53,20 +68,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Map userMap = jsonDecode(
         sharedPreferences.getString(LocalStorage.loginResponseModel));
     user = LoginResponseModel.fromJson(userMap);
-    notificationToken = user.user.userFirebase;
-    if(notificationToken==null){
-      setState(() {
-        isSwitched1 = false;
-      });
-    }else{
-      setState(() {
-        isSwitched1 = true;
-      });
-    }
+    notificationToken =user.user.userFirebase;
     if (sharedPreferences.getBool("language") != null) {
       isSwitched = sharedPreferences.getBool("language");
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -74,17 +79,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: whiteLIGHT,
-      body: SingleChildScrollView(child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          _profileHeader(),
-          _about(),_supportUs()
-        ],
-      ),),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            _profileHeader(),
+            _about(),
+            _supportUs()
+          ],
+        ),
+      ),
     );
   }
 
@@ -97,19 +105,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(80.0),
-            child: Image(
-              image: AssetImage(Assets.avtar),
-              height: 80.0,
-              width: 80.0,
+          InkWell(
+            onTap: () {
+              _showSelectionDialog(context);
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(80.0),
+              child: Image(
+                image: _getProfileResponseModel == null
+                    ? AssetImage(Assets.avtar)
+                    : _getProfileResponseModel.user == null
+                        ? AssetImage(Assets.avtar)
+                        : _getProfileResponseModel.user.userImagePath == ""
+                            ? AssetImage(Assets.avtar)
+                            : NetworkImage(""),
+                height: 80.0,
+                width: 80.0,
+              ),
             ),
           ),
           SizedBox(
             height: 10.0,
           ),
           Text(
-            "Abdullah Alajmi",
+            _getProfileResponseModel == null
+                ? ""
+                : _getProfileResponseModel.user == null
+                    ? ""
+                    : _getProfileResponseModel.user.userName,
             style: TextStyle(
                 fontSize: 22, color: greenColor, fontWeight: FontWeight.w500),
           ),
@@ -120,7 +143,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Freeslab88@gmail.com",
+                _getProfileResponseModel == null
+                    ? ""
+                    : _getProfileResponseModel.user == null
+                        ? ""
+                        : _getProfileResponseModel.user.userEmail,
                 style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
@@ -129,13 +156,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(
                 width: 10.0,
               ),
-             InkWell(onTap: (){
-               emailUpdateDialog(context);
-             },child:  Image(
-               image: AssetImage(Assets.edit_icon),
-               height: 20.0,
-               width: 20.0,
-             ),)
+              /*InkWell(
+                onTap: () {
+                 // emailUpdateDialog(context);
+                },
+                child: Image(
+                  image: AssetImage(Assets.edit_icon),
+                  height: 20.0,
+                  width: 20.0,
+                ),
+              )*/
             ],
           ),
           SizedBox(
@@ -160,7 +190,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   children: [
                     Text(
-                      "50228866",
+                      _getProfileResponseModel == null
+                          ? "XXXXXXXX"
+                          : _getProfileResponseModel.user == null
+                              ? "XXXXXXXX"
+                              : _getProfileResponseModel.user.userTelep
+                                          .trim() ==
+                                      ""
+                                  ? "XXXXXXX"
+                                  : _getProfileResponseModel.user.userTelep,
                       style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -169,13 +207,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                    InkWell(onTap: (){
-                      phoneUpdateDialog(context);
-                    },child: Image(
-                      image: AssetImage(Assets.edit_icon),
-                      height: 15.0,
-                      width: 15.0,
-                    ),)
+                    InkWell(
+                      onTap: () {
+                        phoneUpdateDialog(context);
+                      },
+                      child: Image(
+                        image: AssetImage(Assets.edit_icon),
+                        height: 15.0,
+                        width: 15.0,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -190,7 +231,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   children: [
                     Text(
-                      "80Kg",
+                      _getProfileResponseModel == null
+                          ? ""
+                          : _getProfileResponseModel.user == null
+                              ? ""
+                              : _getProfileResponseModel.user.userWeight + "kg",
                       style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -199,13 +244,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                   InkWell(onTap: (){
-                     weightUpdateDialog(context);
-                   },child:  Image(
-                     image: AssetImage(Assets.edit_icon),
-                     height: 15.0,
-                     width: 15.0,
-                   ),)
+                    InkWell(
+                      onTap: () {
+                        weightUpdateDialog(context);
+                      },
+                      child: Image(
+                        image: AssetImage(Assets.edit_icon),
+                        height: 15.0,
+                        width: 15.0,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -218,7 +266,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   children: [
                     Text(
-                      "170cm",
+                      _getProfileResponseModel == null
+                          ? ""
+                          : _getProfileResponseModel.user == null
+                              ? ""
+                              : _getProfileResponseModel.user.userTall + " Cm",
                       style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -227,13 +279,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: 3.0,
                     ),
-                    InkWell(onTap: (){
-                      tallUpdateDialog(context);
-                    },child: Image(
-                      image: AssetImage(Assets.edit_icon),
-                      height: 15.0,
-                      width: 15.0,
-                    ),)
+                    InkWell(
+                      onTap: () {
+                        tallUpdateDialog(context);
+                      },
+                      child: Image(
+                        image: AssetImage(Assets.edit_icon),
+                        height: 15.0,
+                        width: 15.0,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -244,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
- Widget _about() {
+  Widget _about() {
     return Container(
       padding: EdgeInsets.all(15.0),
       child: Column(
@@ -261,7 +316,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontWeight: FontWeight.w500),
             ).tr(),
           ),
-          SizedBox(height: 15.0,),
+          SizedBox(
+            height: 15.0,
+          ),
           Card(
             child: Column(
               children: [
@@ -297,36 +354,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   indent: 15.0,
                   endIndent: 15.0,
                 ),
-               InkWell(onTap:(){
-                Utils.pushReplacement(context,  MyOrder());
-               },child:  Container(
-                 padding: EdgeInsets.all(8.0),
-                 child: Row(
-                   children: [
-                     Image(
-                       image: AssetImage(Assets.history),
-                       height: 40.0,
-                       width: 40.0,
-                     ),
-                     SizedBox(
-                       width: 10.0,
-                     ),
-                     Expanded(
-                         child: Text(
+                InkWell(
+                  onTap: () {
+                    Utils.pushReplacement(context, MyOrder());
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image(
+                          image: AssetImage(Assets.history),
+                          height: 40.0,
+                          width: 40.0,
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Expanded(
+                            child: Text(
                           LocaleKeys.key_order_history,
-                           style: TextStyle(
-                               fontSize: 16,
-                               color: Colors.grey,
-                               fontWeight: FontWeight.w400),
-                         ).tr()),
-                     Icon(
-                       Icons.arrow_forward_ios_sharp,
-                       size: 20.0,
-                       color: Colors.grey,
-                     )
-                   ],
-                 ),
-               ),),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w400),
+                        ).tr()),
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          size: 20.0,
+                          color: Colors.grey,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
                 Divider(
                   indent: 15.0,
                   endIndent: 15.0,
@@ -396,22 +456,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Expanded(
                           child: Text(
-                            LocaleKeys.key_notification,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400),
-                          ).tr()),
+                        LocaleKeys.key_notification,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w400),
+                      ).tr()),
                       Switch(
                         value: isSwitched1,
                         onChanged: (value) {
                           setState(() {
                             isSwitched1 = value;
                             print(isSwitched1);
-                            if(isSwitched1==true){
+                            if (isSwitched1 == true) {
                               _notificationOn();
-                            }else{
-                              _disableNotification(user.user.userEmail,user.user.userPassword);
+                            } else {
+                              _disableNotification(
+                                 _getProfileResponseModel.user.userEmail,_getProfileResponseModel.user.userPassword);
                             }
                           });
                         },
@@ -439,48 +500,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-            LocaleKeys.key_support,
+              LocaleKeys.key_support,
               style: TextStyle(
                   fontSize: 18,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500),
             ).tr(),
           ),
-          SizedBox(height: 15.0,),
+          SizedBox(
+            height: 15.0,
+          ),
           Card(
             child: Column(
               children: [
-              InkWell(onTap: (){
-                Share.share('check out my website https://example.com', subject: 'Look what I made!');
-
-              },child:   Container(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Image(
-                      image: AssetImage(Assets.share),
-                      height: 40.0,
-                      width: 40.0,
-                    ),
-                    SizedBox(
-                      width: 10.0,
-                    ),
-                    Expanded(
-                        child: Text(
+                InkWell(
+                  onTap: () {
+                    Share.share('check out my website https://example.com',
+                        subject: 'Look what I made!');
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image(
+                          image: AssetImage(Assets.share),
+                          height: 40.0,
+                          width: 40.0,
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Expanded(
+                            child: Text(
                           LocaleKeys.key_share,
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
                               fontWeight: FontWeight.w400),
                         ).tr()),
-                    Icon(
-                      Icons.arrow_forward_ios_sharp,
-                      size: 20.0,
-                      color: Colors.grey,
-                    )
-                  ],
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          size: 20.0,
+                          color: Colors.grey,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),),
                 Divider(
                   indent: 15.0,
                   endIndent: 15.0,
@@ -499,12 +565,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Expanded(
                           child: Text(
-                            LocaleKeys.key_rate,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400),
-                          ).tr()),
+                        LocaleKeys.key_rate,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w400),
+                      ).tr()),
                       Icon(
                         Icons.arrow_forward_ios_sharp,
                         size: 20.0,
@@ -530,13 +596,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 10.0,
                       ),
                       Expanded(
-                          child:Text(
-                            LocaleKeys.key_feedback,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400),
-                          ).tr()),
+                          child: Text(
+                        LocaleKeys.key_feedback,
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w400),
+                      ).tr()),
                       Icon(
                         Icons.arrow_forward_ios_sharp,
                         size: 20.0,
@@ -549,36 +615,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   indent: 15.0,
                   endIndent: 15.0,
                 ),
-               InkWell(onTap: (){
-                 Utils.pushReplacement(context, SucessMessage());
-               },child:  Container(
-                 padding: EdgeInsets.all(8.0),
-                 child: Row(
-                   children: [
-                     Image(
-                       image: AssetImage(Assets.privacy_policy),
-                       height: 40.0,
-                       width: 40.0,
-                     ),
-                     SizedBox(
-                       width: 10.0,
-                     ),
-                     Expanded(
-                         child: Text(
-                           LocaleKeys.key_privacy,
-                           style: TextStyle(
-                               fontSize: 16,
-                               color: Colors.grey,
-                               fontWeight: FontWeight.w400),
-                         ).tr()),
-                     Icon(
-                       Icons.arrow_forward_ios_sharp,
-                       size: 20.0,
-                       color: Colors.grey,
-                     )
-                   ],
-                 ),
-               ),)
+                InkWell(
+                  onTap: () {
+                    Utils.pushReplacement(context, SucessMessage());
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Image(
+                          image: AssetImage(Assets.privacy_policy),
+                          height: 40.0,
+                          width: 40.0,
+                        ),
+                        SizedBox(
+                          width: 10.0,
+                        ),
+                        Expanded(
+                            child: Text(
+                          LocaleKeys.key_privacy,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w400),
+                        ).tr()),
+                        Icon(
+                          Icons.arrow_forward_ios_sharp,
+                          size: 20.0,
+                          color: Colors.grey,
+                        )
+                      ],
+                    ),
+                  ),
+                )
               ],
             ),
           )
@@ -610,19 +679,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       data['user_password'] = password;
 
       final response = await http.post(clearToken,
-          headers: {"Accept": "application/json"},
-          body: json.encode(data));
+          headers: {"Accept": "application/json"}, body: json.encode(data));
       print("logib ${response.body}");
       if (response.body != null) {
-
         if (response.statusCode == 200) {
-
           var result = json.decode(response.body);
           clearTokenResponseModel = ClearTokenResponseModel.fromJson(result);
           if (clearTokenResponseModel.status == "1") {
-            notificationToken ==null;
+            notificationToken == null;
             Utils.toast("your Notification is Disable");
-
           } else {
             Utils.toast(clearTokenResponseModel.message);
           }
@@ -640,43 +705,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   _notificationOn() async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
-
-
       final Map<String, dynamic> data = new Map<String, dynamic>();
-      data['user_id'] = user.user.userId;
-      data['user_name'] = user.user.userName;
-      data['user_email'] = user.user.userEmail;
-      data['user_password'] = user.user.userPassword;
-      data['user_telep'] = "54678451 ";
-      data['user_another_telep'] = "12345678";
-      if(user.user.userGender=="Male"){
+      data['user_id'] =_getProfileResponseModel.user.userId;
+      data['user_name'] =_getProfileResponseModel.user.userName;
+      data['user_email'] =_getProfileResponseModel.user.userEmail;
+      data['user_password'] =_getProfileResponseModel.user.userPassword;
+      data['user_telep'] = _getProfileResponseModel.user.userTelep;
+      data['user_another_telep'] = _getProfileResponseModel.user.userAnotherTelep;
+      if (user.user.userGender == "Male") {
         data['user_gender'] = "1";
-      }else{
+      } else {
         data['user_gender'] = "2";
       }
-
-      data['user_age'] = user.user.userAge;
-      data['user_tall'] = user.user.userTall;
-      data['user_weight'] = user.user.userWeight;
-      data['user_motivation'] = user.user.userMotivation;
-      data['user_goal_weight'] = user.user.userGoalWeight;
+      data['user_age'] =_getProfileResponseModel.user.userAge;
+      data['user_tall'] =_getProfileResponseModel.user.userTall;
+      data['user_weight'] =_getProfileResponseModel.user.userWeight;
+      data['user_motivation'] =_getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =_getProfileResponseModel.user.userGoalWeight;
       data['user_firebase'] = token;
       data['jwt'] = user.jwt;
-
       print("data ${json.encode(data)}");
-
       final response = await http.post(updateUser,
-          headers: {"Accept": "application/json"},
-          body: json.encode(data));
+          headers: {"Accept": "application/json"}, body: json.encode(data));
       print("reg ${response.body}");
       if (response.body != null) {
-
         if (response.statusCode == 200) {
           var result = json.decode(response.body);
           updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
           if (updateUserResponseModel.status == "1") {
-
-
+            Utils.toast("your Notification is Enabled");
           } else {
             Utils.toast(updateUserResponseModel.message);
           }
@@ -685,15 +742,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             var result = json.decode(response.body);
             updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
             Utils.toast(updateUserResponseModel.message);
-
           } else {
             Utils.toast("${response.statusCode}");
-
           }
         }
       } else {
         Utils.toast(generalError);
-
       }
     } else {
       Utils.toast(noInternetError);
@@ -703,7 +757,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void firbaseMessage() {
     var android = new AndroidInitializationSettings('mipmap/ic_launcher');
     var ios = new IOSInitializationSettings();
-    var platform = new InitializationSettings(android:android,iOS:  ios);
+    var platform = new InitializationSettings(android: android, iOS: ios);
     flutterLocalNotificationsPlugin.initialize(platform);
 
     firebaseMessaging.configure(
@@ -761,14 +815,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
       enableVibration: true,
     );
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics = NotificationDetails(android:
-    androidPlatformChannelSpecifics, iOS:iOSPlatformChannelSpecifics);
+    var platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
         0,
         Platform.isIOS ? msg["title"] : msg["data"]["title"],
         Platform.isIOS ? msg["body"] : msg["data"]["body"],
         platformChannelSpecifics,
         payload: jsonEncode(msg));
+  }
+
+  /*-------------------------------------------- get image from camera and gallery ----------------------------------------*/
+
+  Future _showSelectionDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text(LocaleKeys.key_take_photo_messsage).tr(),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Text("Gallery"),
+                      onTap: () {
+                        _openGallery(context);
+                      },
+                    ),
+                    Padding(padding: EdgeInsets.all(8.0)),
+                    GestureDetector(
+                      child: Text("Camera"),
+                      onTap: () {
+                        _openCamera(context);
+                      },
+                    )
+                  ],
+                ),
+              ));
+        });
+  }
+
+  /*------------------------------------------------ Pick Image From Gallery --------------------------------------------*/
+
+  void _openGallery(BuildContext context) async {
+    //var picture = await ImagePicker().getImage(source: ImageSource.gallery);
+    var picture =
+        await ImagePicker.platform.pickImage(source: ImageSource.gallery);
+    File file = File(picture.path);
+    if (mounted)
+      setState(() {
+        imageFile = file;
+      });
+    Navigator.of(context).pop();
+  }
+
+  /*------------------------------------------------ pickImage Using Camera ---------------------------------------------*/
+
+  void _openCamera(BuildContext context) async {
+    var picture = await ImagePicker().getImage(source: ImageSource.camera);
+    File file = File(picture.path);
+    if (mounted)
+      setState(() {
+        imageFile = file;
+      });
+    Navigator.of(context).pop();
+  }
+
+  imageUpload() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      var request = http.MultipartRequest("POST", Uri.parse(uploadImage));
+      request.headers["Authorization"] = "Bearer " + token;
+      var pic =
+          await http.MultipartFile.fromPath("file_upload", imageFile.path);
+      print('file${imageFile}');
+      print('paths${imageFile.path}');
+      request.files.add(pic);
+      var response = await request.send();
+      var responseData = await response.stream.toBytes();
+      var responseString = String.fromCharCodes(responseData);
+      var result = json.decode(responseString);
+      print(" edti${response.statusCode}");
+      if (response.statusCode == 200) {
+        _imageUploadResponseModel = ImageUploadResponseModel.fromJson(result);
+        updateImageApiCall(_imageUploadResponseModel.imagePath);
+      } else {
+        Utils.toast(" ${response.statusCode} ${generalError}");
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
   }
 
   emailUpdateDialog(BuildContext context) {
@@ -783,111 +920,129 @@ class _ProfileScreenState extends State<ProfileScreen> {
       pageBuilder: (_, __, ___) {
         return Align(
             alignment: Alignment.center,
-            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              child: SizedBox(
-
-                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Edit Email",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                  fontSize: 18.0),
-                            ),
-                            InkWell(onTap: (){
-                              Navigator.of(context, rootNavigator: true).pop('dialog');
-                            },child: Icon(Icons.cancel),)
-                          ],)),
-                    Form(
-                      key: _formKey, child: Column(children: <Widget>[
-
-                      Padding(padding: EdgeInsets.only(top: 20.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.text,
-
-                            textInputAction: TextInputAction.done,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400),
-                            maxLines: 1,
-                            controller: textEditingController,
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Oops! please enter email -id';
-                              }
-                            },
-                            decoration: new InputDecoration(
-                              labelText: "Email",
-                              labelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w400),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              hintText: "Email",
-                              contentPadding: EdgeInsets.only(
-                                  left: 15,
-                                  bottom: 11,
-                                  top: 11,
-                                  right: 15),
-
-                            ),
-                          ))
-                    ],),
-                    ),
-
-                    Padding(
-                        padding:
-                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: MaterialButton(
-                            minWidth: 50.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            onPressed: () =>
-                            {
-                              if (_formKey.currentState.validate()) {
-                                Utils.hideKeyboard(context),
-                                Navigator.of(context, rootNavigator: true).pop('dialog')
-
-                              }
-                            },
-                            color: greenColor,
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              // Replace with a Row for horizontal icon + text
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 10.0,
+                right: 10.0,
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: SizedBox(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Edit Email",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                        fontSize: 18.0),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop('dialog');
+                                    },
+                                    child: Icon(Icons.cancel),
+                                  )
+                                ],
+                              )),
+                          Form(
+                            key: _formKey,
+                            child: Column(
                               children: <Widget>[
-                                Text(
-                                  "Update",
-                                  style: TextStyle(color: Colors.white),
-                                ).tr(),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 20.0),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.text,
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w400),
+                                      maxLines: 1,
+                                      controller: textEditingController,
+                                      validator: (String value) {
+                                        if (value.isEmpty) {
+                                          return 'Oops! please enter email -id';
+                                        }
+                                      },
+                                      decoration: new InputDecoration(
+                                        labelText: "Email",
+                                        labelStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w400),
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        hintText: "Email",
+                                        contentPadding: EdgeInsets.only(
+                                            left: 15,
+                                            bottom: 11,
+                                            top: 11,
+                                            right: 15),
+                                      ),
+                                    ))
                               ],
                             ),
                           ),
-                        ))
-                  ],
-                ),),),)
-              ,
-            ),)
-        );
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  top: 30.0, left: 40.0, right: 40.0),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: MaterialButton(
+                                  minWidth: 50.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  onPressed: () => {
+                                    if (_formKey.currentState.validate())
+                                      {
+                                        Utils.hideKeyboard(context),
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop('dialog'),
+                                        emailUpdateApi(textEditingController.text)
+                                      }
+                                  },
+                                  color: greenColor,
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    // Replace with a Row for horizontal icon + text
+                                    children: <Widget>[
+                                      Text(
+                                        "Update",
+                                        style: TextStyle(color: Colors.white),
+                                      ).tr(),
+                                    ],
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
@@ -900,7 +1055,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   phoneUpdateDialog(BuildContext context) {
     var _formKey = GlobalKey<FormState>();
-    TextEditingController textEditingController = new TextEditingController();
+    TextEditingController ptextEditingController = new TextEditingController();
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -910,111 +1065,132 @@ class _ProfileScreenState extends State<ProfileScreen> {
       pageBuilder: (_, __, ___) {
         return Align(
             alignment: Alignment.center,
-            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              child: SizedBox(
-
-                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Edit Mobile Number",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                  fontSize: 18.0),
-                            ),
-                            InkWell(onTap: (){
-                              Navigator.of(context, rootNavigator: true).pop('dialog');
-                            },child: Icon(Icons.cancel),)
-                          ],)),
-                    Form(
-                      key: _formKey, child: Column(children: <Widget>[
-
-                      Padding(padding: EdgeInsets.only(top: 20.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-
-                            textInputAction: TextInputAction.done,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400),
-                            maxLines: 1,
-                            controller: textEditingController,
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Oops! please enter mobile no';
-                              }
-                            },
-                            decoration: new InputDecoration(
-                              labelText: "Mobile Number",
-                              labelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w400),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              hintText: "Mobile Number",
-                              contentPadding: EdgeInsets.only(
-                                  left: 15,
-                                  bottom: 11,
-                                  top: 11,
-                                  right: 15),
-
-                            ),
-                          ))
-                    ],),
-                    ),
-
-                    Padding(
-                        padding:
-                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: MaterialButton(
-                            minWidth: 50.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            onPressed: () =>
-                            {
-                              if (_formKey.currentState.validate()) {
-                                Utils.hideKeyboard(context),
-                                Navigator.of(context, rootNavigator: true).pop('dialog')
-
-                              }
-                            },
-                            color: greenColor,
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              // Replace with a Row for horizontal icon + text
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 10.0,
+                right: 10.0,
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: SizedBox(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Edit Mobile Number",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                        fontSize: 18.0),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop('dialog');
+                                    },
+                                    child: Icon(Icons.cancel),
+                                  )
+                                ],
+                              )),
+                          Form(
+                            key: _formKey,
+                            child: Column(
                               children: <Widget>[
-                                Text(
-                                  "Update",
-                                  style: TextStyle(color: Colors.white),
-                                ).tr(),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 20.0),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 8,
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w400),
+                                      maxLines: 1,
+                                      controller: ptextEditingController,
+                                      validator: (String value) {
+                                        if (value.isEmpty) {
+                                          return 'Oops! please enter mobile no';
+                                        }
+                                      },
+                                      decoration: new InputDecoration(
+                                        labelText: "Mobile Number",
+                                        labelStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w400),
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        hintText: "Mobile Number",
+                                        contentPadding: EdgeInsets.only(
+                                            left: 15,
+                                            bottom: 11,
+                                            top: 11,
+                                            right: 15),
+                                      ),
+                                    ))
                               ],
                             ),
                           ),
-                        ))
-                  ],
-                ),),),)
-              ,
-            ),)
-        );
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  top: 30.0, left: 40.0, right: 40.0),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: MaterialButton(
+                                  minWidth: 50.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  onPressed: () => {
+                                    if (_formKey.currentState.validate())
+                                      {
+                                        Utils.hideKeyboard(context),
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop('dialog'),
+                                        updatePhoneNumber(
+                                            ptextEditingController.text)
+                                      }
+                                  },
+
+                                  color: greenColor,
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    // Replace with a Row for horizontal icon + text
+                                    children: <Widget>[
+                                      Text(
+                                        "Update",
+                                        style: TextStyle(color: Colors.white),
+                                      ).tr(),
+                                    ],
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
@@ -1027,7 +1203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   weightUpdateDialog(BuildContext context) {
     var _formKey = GlobalKey<FormState>();
-    TextEditingController textEditingController = new TextEditingController();
+    TextEditingController wtextEditingController = new TextEditingController();
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -1037,111 +1213,129 @@ class _ProfileScreenState extends State<ProfileScreen> {
       pageBuilder: (_, __, ___) {
         return Align(
             alignment: Alignment.center,
-            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              child: SizedBox(
-
-                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Edit Weight",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                  fontSize: 18.0),
-                            ),
-                            InkWell(onTap: (){
-                              Navigator.of(context, rootNavigator: true).pop('dialog');
-                            },child: Icon(Icons.cancel),)
-                          ],)),
-                    Form(
-                      key: _formKey, child: Column(children: <Widget>[
-
-                      Padding(padding: EdgeInsets.only(top: 20.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-
-                            textInputAction: TextInputAction.done,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400),
-                            maxLines: 1,
-                            controller: textEditingController,
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Oops! please enter weight';
-                              }
-                            },
-                            decoration: new InputDecoration(
-                              labelText: "Weight",
-                              labelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w400),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              hintText: "Weight",
-                              contentPadding: EdgeInsets.only(
-                                  left: 15,
-                                  bottom: 11,
-                                  top: 11,
-                                  right: 15),
-
-                            ),
-                          ))
-                    ],),
-                    ),
-
-                    Padding(
-                        padding:
-                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: MaterialButton(
-                            minWidth: 50.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            onPressed: () =>
-                            {
-                              if (_formKey.currentState.validate()) {
-                                Utils.hideKeyboard(context),
-                                Navigator.of(context, rootNavigator: true).pop('dialog')
-
-                              }
-                            },
-                            color: greenColor,
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              // Replace with a Row for horizontal icon + text
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 10.0,
+                right: 10.0,
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: SizedBox(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Edit Weight",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                        fontSize: 18.0),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop('dialog');
+                                    },
+                                    child: Icon(Icons.cancel),
+                                  )
+                                ],
+                              )),
+                          Form(
+                            key: _formKey,
+                            child: Column(
                               children: <Widget>[
-                                Text(
-                                  "Update",
-                                  style: TextStyle(color: Colors.white),
-                                ).tr(),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 20.0),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w400),
+                                      maxLines: 1,
+                                      controller: wtextEditingController,
+                                      validator: (String value) {
+                                        if (value.isEmpty) {
+                                          return 'Oops! please enter weight';
+                                        }
+                                      },
+                                      decoration: new InputDecoration(
+                                        labelText: "Weight",
+                                        labelStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w400),
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        hintText: "Weight",
+                                        contentPadding: EdgeInsets.only(
+                                            left: 15,
+                                            bottom: 11,
+                                            top: 11,
+                                            right: 15),
+                                      ),
+                                    ))
                               ],
                             ),
                           ),
-                        ))
-                  ],
-                ),),),)
-              ,
-            ),)
-        );
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  top: 30.0, left: 40.0, right: 40.0),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: MaterialButton(
+                                  minWidth: 50.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  onPressed: () => {
+                                    if (_formKey.currentState.validate())
+                                      {
+                                        Utils.hideKeyboard(context),
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop('dialog'),
+                                        updateWeight(wtextEditingController.text)
+                                      }
+                                  },
+                                  color: greenColor,
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    // Replace with a Row for horizontal icon + text
+                                    children: <Widget>[
+                                      Text(
+                                        "Update",
+                                        style: TextStyle(color: Colors.white),
+                                      ).tr(),
+                                    ],
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
@@ -1154,7 +1348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   tallUpdateDialog(BuildContext context) {
     var _formKey = GlobalKey<FormState>();
-    TextEditingController textEditingController = new TextEditingController();
+    TextEditingController talltextEditingController = new TextEditingController();
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -1164,113 +1358,129 @@ class _ProfileScreenState extends State<ProfileScreen> {
       pageBuilder: (_, __, ___) {
         return Align(
             alignment: Alignment.center,
-            child: Padding(padding: EdgeInsets.only(left: 10.0,right: 10.0,),child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              child: SizedBox(
-
-                child: SingleChildScrollView(child: Padding(padding: EdgeInsets.all(10.0),child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                          Text(
-                            "Edit Tall",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                                fontSize: 18.0),
-                          ),
-                            InkWell(onTap: (){
-                              Navigator.of(context, rootNavigator: true).pop('dialog');
-                            },child: Icon(Icons.cancel),)
-                        ],)),
-                    Form(
-                      key: _formKey, child: Column(children: <Widget>[
-
-                      Padding(padding: EdgeInsets.only(top: 20.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-
-                            textInputAction: TextInputAction.done,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400),
-                            maxLines: 1,
-
-
-                            controller: textEditingController,
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Oops! please enter tall';
-                              }
-                            },
-                            decoration: new InputDecoration(
-                              labelText: "Tall",
-                              labelStyle: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w400),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Colors.black)),
-                              hintText: "Tall",
-                              contentPadding: EdgeInsets.only(
-                                  left: 15,
-                                  bottom: 11,
-                                  top: 11,
-                                  right: 15),
-
-                            ),
-                          ))
-                    ],),
-                    ),
-
-                    Padding(
-                        padding:
-                        EdgeInsets.only(top: 30.0, left: 40.0, right: 40.0),
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: MaterialButton(
-                            minWidth: 50.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            onPressed: () =>
-                            {
-                              if (_formKey.currentState.validate()) {
-                                Utils.hideKeyboard(context),
-                                Navigator.of(context, rootNavigator: true).pop('dialog')
-
-                              }
-                            },
-                            color: greenColor,
-                            padding: EdgeInsets.all(10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              // Replace with a Row for horizontal icon + text
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 10.0,
+                right: 10.0,
+              ),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: SizedBox(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Edit Tall",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                        fontSize: 18.0),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop('dialog');
+                                    },
+                                    child: Icon(Icons.cancel),
+                                  )
+                                ],
+                              )),
+                          Form(
+                            key: _formKey,
+                            child: Column(
                               children: <Widget>[
-                                Text(
-                                  "Update",
-                                  style: TextStyle(color: Colors.white),
-                                ).tr(),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 20.0),
+                                    child: TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w400),
+                                      maxLines: 1,
+                                      controller: talltextEditingController,
+                                      validator: (String value) {
+                                        if (value.isEmpty) {
+                                          return 'Oops! please enter tall';
+                                        }
+                                      },
+                                      decoration: new InputDecoration(
+                                        labelText: "Tall",
+                                        labelStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w400),
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black)),
+                                        hintText: "Tall",
+                                        contentPadding: EdgeInsets.only(
+                                            left: 15,
+                                            bottom: 11,
+                                            top: 11,
+                                            right: 15),
+                                      ),
+                                    ))
                               ],
                             ),
                           ),
-                        ))
-                  ],
-                ),),),)
-              ,
-            ),)
-        );
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  top: 30.0, left: 40.0, right: 40.0),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: MaterialButton(
+                                  minWidth: 50.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  onPressed: () => {
+                                    if (_formKey.currentState.validate())
+                                      {
+                                        Utils.hideKeyboard(context),
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop('dialog'),
+                                        tallUpdate(talltextEditingController.text)
+                                      }
+                                  },
+                                  color: greenColor,
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    // Replace with a Row for horizontal icon + text
+                                    children: <Widget>[
+                                      Text(
+                                        "Update",
+                                        style: TextStyle(color: Colors.white),
+                                      ).tr(),
+                                    ],
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
@@ -1280,4 +1490,348 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+
+  Future<void> updateImageApiCall(String imagePath) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_image_path'] = imagePath;
+      data['user_id'] =_getProfileResponseModel.user.userId;
+      data['user_name'] =_getProfileResponseModel.user.userName;
+      data['user_email'] =_getProfileResponseModel.user.userEmail;
+      data['user_password'] =_getProfileResponseModel.user.userPassword;
+      data['user_telep'] = "54678451 ";
+      data['user_another_telep'] = "12345678";
+      if (user.user.userGender == "Male") {
+        data['user_gender'] = "1";
+      } else {
+        data['user_gender'] = "2";
+      }
+      data['user_age'] =_getProfileResponseModel.user.userAge;
+      data['user_tall'] =_getProfileResponseModel.user.userTall;
+      data['user_weight'] =_getProfileResponseModel.user.userWeight;
+      data['user_motivation'] =_getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =_getProfileResponseModel.user.userGoalWeight;
+      data['user_firebase'] = token;
+      data['jwt'] = user.jwt;
+      print("data ${json.encode(data)}");
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"}, body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+            getCurrentProfile();
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  getCurrentProfile() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_email'] =user.user.userEmail;
+      data['user_password'] =user.user.userPassword;
+
+      final response = await http.post(getCurrentUser,
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.jwt}"
+          },
+          body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          _getProfileResponseModel = GetProfileResponseModel.fromJson(result);
+          if (_getProfileResponseModel.status == "1") {
+            if (mounted) setState(() {});
+            if (_getProfileResponseModel.user.userFirebase == null||_getProfileResponseModel.user.userFirebase.trim().isEmpty) {
+              setState(() {
+                isSwitched1 = false;
+              });
+            } else {
+              setState(() {
+                isSwitched1 = true;
+              });
+            }
+
+          } else {
+            Utils.toast(_getProfileResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            _getProfileResponseModel = GetProfileResponseModel.fromJson(result);
+            Utils.toast(_getProfileResponseModel.message);
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  updatePhoneNumber(String text) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_image_path'] = _getProfileResponseModel.user.userImagePath;
+      data['user_id'] = _getProfileResponseModel.user.userId;
+      data['user_name'] =_getProfileResponseModel.user.userName;
+      data['user_email'] =_getProfileResponseModel.user.userEmail;
+      data['user_password'] =_getProfileResponseModel.user.userPassword;
+      data['user_telep'] = text;
+      data['user_another_telep'] = text;
+      if (user.user.userGender == "Male") {
+        data['user_gender'] = "1";
+      } else {
+        data['user_gender'] = "2";
+      }
+      data['user_age'] =_getProfileResponseModel.user.userAge;
+      data['user_tall'] =_getProfileResponseModel.user.userTall;
+      data['user_weight'] =_getProfileResponseModel.user.userWeight;
+      data['user_motivation'] =_getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =_getProfileResponseModel.user.userGoalWeight;
+      data['user_firebase'] = _getProfileResponseModel.user.userFirebase;
+      data['jwt'] = user.jwt;
+      print("data ${json.encode(data)}");
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"}, body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+            getCurrentProfile();
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  updateWeight(String text) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_image_path'] = _getProfileResponseModel.user.userImagePath;
+      data['user_id'] =  _getProfileResponseModel.user.userId;
+      data['user_name'] =  _getProfileResponseModel.user.userName;
+      data['user_email'] =  _getProfileResponseModel.user.userEmail;
+      data['user_password'] =  _getProfileResponseModel.user.userPassword;
+      data['user_telep'] =  _getProfileResponseModel.user.userTelep;
+      data['user_another_telep'] =  _getProfileResponseModel.user.userAnotherTelep;
+      if ( _getProfileResponseModel.user.userGender == "Male") {
+        data['user_gender'] = "1";
+      } else {
+        data['user_gender'] = "2";
+      }
+      data['user_age'] =  _getProfileResponseModel.user.userAge;
+      data['user_tall'] =  _getProfileResponseModel.user.userTall;
+      data['user_weight'] =  text;
+      data['user_motivation'] =  _getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =  _getProfileResponseModel.user.userGoalWeight;
+      data['user_firebase'] =  _getProfileResponseModel.user.userFirebase;
+      data['jwt'] = _getProfileResponseModel.user.jwt;
+      print("data ${json.encode(data)}");
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"}, body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+            getCurrentProfile();
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  tallUpdate(String text) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_image_path'] = _getProfileResponseModel.user.userImagePath;
+      data['user_id'] =  _getProfileResponseModel.user.userId;
+      data['user_name'] =  _getProfileResponseModel.user.userName;
+      data['user_email'] =  _getProfileResponseModel.user.userEmail;
+      data['user_password'] =  _getProfileResponseModel.user.userPassword;
+      data['user_telep'] =  _getProfileResponseModel.user.userTelep;
+      data['user_another_telep'] =  _getProfileResponseModel.user.userAnotherTelep;
+      if ( _getProfileResponseModel.user.userGender == "Male") {
+        data['user_gender'] = "1";
+      } else {
+        data['user_gender'] = "2";
+      }
+      data['user_age'] =  _getProfileResponseModel.user.userAge;
+      data['user_tall'] =  text;
+      data['user_weight'] =  _getProfileResponseModel.user.userWeight;
+      data['user_motivation'] =  _getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =  _getProfileResponseModel.user.userGoalWeight;
+      data['user_firebase'] =  _getProfileResponseModel.user.userFirebase;
+      data['jwt'] = _getProfileResponseModel.user.jwt;
+      print("data ${json.encode(data)}");
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"}, body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+            getCurrentProfile();
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  emailUpdateApi(String text) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_image_path'] = _getProfileResponseModel.user.userImagePath;
+      data['user_id'] =  _getProfileResponseModel.user.userId;
+      data['user_name'] =  _getProfileResponseModel.user.userName;
+      data['user_email'] =  text;
+      data['user_password'] =  _getProfileResponseModel.user.userPassword;
+      data['user_telep'] =  _getProfileResponseModel.user.userTelep;
+      data['user_another_telep'] =  _getProfileResponseModel.user.userAnotherTelep;
+      if ( _getProfileResponseModel.user.userGender == "Male") {
+        data['user_gender'] = "1";
+      } else {
+        data['user_gender'] = "2";
+      }
+      data['user_age'] =  _getProfileResponseModel.user.userAge;
+      data['user_tall'] =   _getProfileResponseModel.user.userTall;
+      data['user_weight'] =  _getProfileResponseModel.user.userWeight;
+      data['user_motivation'] =  _getProfileResponseModel.user.userMotivation;
+      data['user_goal_weight'] =  _getProfileResponseModel.user.userGoalWeight;
+      data['user_firebase'] =  _getProfileResponseModel.user.userFirebase;
+      data['jwt'] = _getProfileResponseModel.user.jwt;
+      print("data ${json.encode(data)}");
+      final response = await http.post(updateUser,
+          headers: {"Accept": "application/json"}, body: json.encode(data));
+      print("reg ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (response.statusCode == 200) {
+          var result = json.decode(response.body);
+          updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+          if (updateUserResponseModel.status == "1") {
+            getCurrentProfile();
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast(updateUserResponseModel.message);
+          }
+        } else {
+          if (response.statusCode == 400) {
+            var result = json.decode(response.body);
+            updateUserResponseModel = UpdateUserResponseModel.fromJson(result);
+            Utils.toast(updateUserResponseModel.message);
+            _customLoader.hideLoader();
+          } else {
+            Utils.toast("${response.statusCode}");
+          }
+        }
+      } else {
+        Utils.toast(generalError);
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  void loginDataStoreTOLocalStorage(result) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String user = jsonEncode(LoginResponseModel.fromJson(result));
+    sharedPreferences.setString(LocalStorage.loginResponseModel, user);
+    sharedPreferences.setBool(LocalStorage.isLogin, true);
+    isChanged();
+  }
+
 }
