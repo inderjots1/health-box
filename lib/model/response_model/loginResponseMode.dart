@@ -10,7 +10,7 @@ class LoginResponseModel {
     status = json['status'];
     message = json['message'];
     jwt = json['jwt'];
-    user = json['user'] != null ? new User.fromJson(json['user']) : null;
+    user = json['user'] == null || json['user']=="" ? null: new User.fromJson(json['user']);
   }
 
   Map<String, dynamic> toJson() {

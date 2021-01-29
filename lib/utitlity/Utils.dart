@@ -124,7 +124,7 @@ class Utils {
   }
 
   static cardView(String image, String heading, String subheading,
-      Color cardcolor, Color textColor, String price) {
+      Color cardcolor, Color textColor, String price, String Days, String programTypeEn) {
     return Stack(
       children: [
         Padding(
@@ -155,7 +155,7 @@ class Utils {
                             width: 10.0,
                           ),
                           Text(
-                            "24day",
+                            "${Days} day",
                             style:
                             TextStyle(fontSize: 16.0, color: Colors.white),
                           ),
@@ -173,7 +173,7 @@ class Utils {
                             width: 10.0,
                           ),
                           Text(
-                            "Full Body",
+                            programTypeEn,
                             style:
                             TextStyle(fontSize: 16.0, color: Colors.white),
                           ),
@@ -220,27 +220,31 @@ class Utils {
                         height: 30.0,
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          heading,
-                          style: TextStyle(
-                              color: textColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16.0),
-                        ).tr(),
-                        SizedBox(
-                          height: 5.0,
-                        ),
-                        Text(
-                          subheading,
-                          style: TextStyle(
-                              color: textColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14.0),
-                        ).tr(),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            heading,
+                            style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.0),
+                          ).tr(),
+                          SizedBox(
+                            height: 5.0,
+                          ),
+                          Text(
+                            subheading,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12.0),
+                          ).tr(),
+                        ],
+                      ),
                     )
                   ],
                 ),

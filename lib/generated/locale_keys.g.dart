@@ -417,4 +417,10 @@ abstract class  LocaleKeys {
   static const key_new_pass = 'key_new_pass';
   static const key_new_pass_text = 'key_new_pass_text';
   static const key_reset_password = 'key_reset_password';
+  static const key_area = 'key_area';
+  static const key_note = 'key_note';
+  static const key_note_empty = 'key_note_empty';
+  static const key_title = 'key_title';
+  static const key_title_empty = 'key_title_empty';
+  static const key_names = 'key_names';
 }

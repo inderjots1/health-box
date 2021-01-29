@@ -3,6 +3,8 @@ import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/screens/home/homeScreen.dart';
+import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -33,7 +35,9 @@ class _SucessMessageState extends State<SucessMessage> {
     return Expanded(
         child: Stack(
           children: [
-            Align(alignment: Alignment.topRight,child: InkWell(onTap: (){},child: Icon(Icons.clear),),),
+            Align(alignment: Alignment.topRight,child: InkWell(onTap: (){
+              Utils.pushRemove(context, HomeScreen());
+            },child: Icon(Icons.clear),),),
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
@@ -70,7 +74,7 @@ class _SucessMessageState extends State<SucessMessage> {
                 buttonText: LocaleKeys.key_calender,
                 textColor: Colors.white,
                 onPressed: () {
-
+                  Utils.pushRemove(context, HomeScreen());
                 },
                 isIconDisplay: false,
               )
@@ -118,7 +122,9 @@ class _SucessMessageState extends State<SucessMessage> {
                 buttonText: Strings.text_google,
                 textColor: Colors.white,
                 isIconDisplay: true,
-                onPressed: () {},
+                onPressed: () {
+
+                },
                 imageUrl: Assets.googleLogo,
               ),
             )),
@@ -130,7 +136,9 @@ class _SucessMessageState extends State<SucessMessage> {
                 buttonText: Strings.text_twitter,
                 textColor: Colors.white,
                 isIconDisplay: true,
-                onPressed: () {},
+                onPressed: () {
+
+                },
                 imageUrl: Assets.twitterLogo,
               ),
             ))

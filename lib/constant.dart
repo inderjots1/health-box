@@ -7,15 +7,22 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 
 const   baseUrl = "http://healthyboxq8.com/api/webservices/api/";
+const   imageRenderUrl = "http://healthyboxq8.com/api/";
 
 const endPointTokenGeneration =baseUrl+"autherization.php";
 const uploadImage =baseUrl+"upload_images.php";
-const endPointAllProgram ="GetPrograms.php";
+const endPointAllProgram =baseUrl+"GetPrograms.php";
 const registerUser = baseUrl+"CreateUser.php";
 const loginUser =baseUrl+"LoginUser.php";
+const forgotPassword =baseUrl+"ForgetPassword.php";
+const changePassword =baseUrl+"ChangePassword.php";
 const getCurrentUser =baseUrl+"GetUserProfile.php";
 const clearToken =baseUrl+"ClearToken.php";
 const updateUser =baseUrl+"UpdateUser.php";
+const getAreaEndPoint =baseUrl+"GetArea.php";
+const addProgramEndPoint =baseUrl+"AddPrograms.php";
+const getUserProgramEndPoint =baseUrl+"GetUserPrograms.php";
+const addFeeds =baseUrl+"AddFeeds.php";
 
 void setFocusNode({
   @required BuildContext context,

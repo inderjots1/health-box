@@ -1,14 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:health_box/constants/assets.dart';
 import 'package:health_box/constants/colors.dart';
 import 'package:health_box/constants/strings.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
+import 'package:health_box/model/response_model/loginResponseMode.dart';
+import 'package:health_box/model/response_model/order_history_response_model.dart';
+import 'package:health_box/utitlity/CustomLoader.dart';
+import 'package:health_box/utitlity/LocalStorage.dart';
 
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:health_box/widgets/button.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constant.dart';
 import 'orderDetail.dart';
+import 'package:http/http.dart' as http;
 
 class MyOrder extends StatefulWidget {
   @override
@@ -16,6 +25,65 @@ class MyOrder extends StatefulWidget {
 }
 
 class _SucessMessageState extends State<MyOrder> {
+
+  LoginResponseModel user = new LoginResponseModel();
+  CustomLoader _customLoader = new CustomLoader();
+  OrderHistoryResposneModel _orderHistoryResposneModel = new OrderHistoryResposneModel();
+  var token;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getDataFromShared();
+    _getAllPrograms();
+  }
+
+  getDataFromShared() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (sharedPreferences.getString(LocalStorage.loginResponseModel) != null) {
+      Map userMap = jsonDecode(
+          sharedPreferences.getString(LocalStorage.loginResponseModel));
+      user = LoginResponseModel.fromJson(userMap);
+      token = user.jwt;
+    }
+  }
+
+  _getAllPrograms() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['user_id'] = user.user.userId;
+      data['user_email'] = user.user.userEmail;
+      data['user_password'] = user.user.userPassword;
+      data['jwt'] = user.jwt;
+      final response = await http.post(
+        getUserProgramEndPoint,body: json.encode(data)
+      );
+
+      if (response.body != null) {
+        if (response.statusCode == 200) {
+          _customLoader.hideLoader();
+          if (mounted)
+            setState(() {
+              var result = json.decode(response.body);
+              _orderHistoryResposneModel =
+                  OrderHistoryResposneModel.fromJson(result);
+            });
+        } else {
+          _customLoader.hideLoader();
+          Utils.toast("${response.statusCode} ");
+        }
+      } else {
+        _customLoader.hideLoader();
+        Utils.toast(generalError);
+      }
+    } else {
+      _customLoader.hideLoader();
+      Utils.toast(noInternetError);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -60,25 +128,26 @@ class _SucessMessageState extends State<MyOrder> {
                    width: 60.0,
                  ),
              ],),
-             Container(child: ListView.builder(
-               itemCount: 6,
+             _orderHistoryResposneModel==null?Container():_orderHistoryResposneModel.programs==null?Container():_orderHistoryResposneModel.programs.isEmpty?Column(): Container(child: ListView.builder(
+               itemCount: _orderHistoryResposneModel.programs.length,
                shrinkWrap: true,
                physics: NeverScrollableScrollPhysics(),
                itemBuilder: (context, i) {
+                 var item = _orderHistoryResposneModel.programs[i];
                  return InkWell(onTap: (){
                    Utils.pushReplacement(context, OrderDetail());
                  },child: Container(child:Column(children: [
                    Divider(),
                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
-                       Text("Plan #456123",style: TextStyle(color: Colors.black,fontSize: 16.0,fontWeight: FontWeight.w500),),
+                       Text("Plan #${item.participationId}",style: TextStyle(color: Colors.black,fontSize: 16.0,fontWeight: FontWeight.w500),),
                        Text("KD 128.00",style: TextStyle(color: Colors.green),)
                      ],),
                    SizedBox(height: 10.0,),
                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
                        Text("Finished",style: TextStyle(color: Colors.greenAccent),),
-                       Text("july 24,2020",style: TextStyle(color: Colors.black),)
+                       Text("${item.programStartDate}",style: TextStyle(color: Colors.black),)
                      ],),
 
 

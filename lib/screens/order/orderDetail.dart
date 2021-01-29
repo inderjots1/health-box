@@ -82,7 +82,7 @@ class _SucessMessageState extends State<OrderDetail> {
     return InkWell(onTap: (){
 
     },child: Utils.cardView(Assets.veg_plan, "Vegetatian",
-        "I can't eat meat and seafood", Colors.white, Colors.black, "102Kd"),);
+        "I can't eat meat and seafood", Colors.white, Colors.black, "102Kd","d0","d"),);
   }
   
   Widget _myorder(){

@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     textColor: Colors.white,
                     onPressed: () {
                       if(_formKey.currentState.validate()){
-                       _userLogin(_emailEditingController.text, _passwordEditingController.text);
+                       _userLogin(_emailEditingController.text.trim(), _passwordEditingController.text.trim());
                       }
 
                     },
@@ -265,9 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
             Utils.pushRemove(context, HomeScreen());
             Utils.toast(_loginResponseModel.message);
              loginDataStoreTOLocalStorage(result);
-          } else {
+          } else  if(_loginResponseModel.status == "0"){
             _customLoader.hideLoader();
-            Utils.toast(_loginResponseModel.message);
+            print("fla");
+            Utils.toast("${_loginResponseModel.message}");
           }
         } else {
           _customLoader.hideLoader();
