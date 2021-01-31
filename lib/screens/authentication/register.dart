@@ -280,6 +280,7 @@ class _LoginScreenState extends State<RegisterScreen> {
                 focusNode: confirmPasswordNode,
                 controller: _confirmPasswordEditingController,
                 textInputAction: TextInputAction.next,
+                obscureText: cpasswordVisible,
                 onFieldSubmitted: (val) {},
                 validator: (String value) {
                   return passwordMatchValidator(

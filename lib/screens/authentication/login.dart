@@ -36,58 +36,58 @@ class _LoginScreenState extends State<LoginScreen> {
   FocusNode passwordNode = new FocusNode();
   LoginResponseModel _loginResponseModel = new LoginResponseModel();
   CustomLoader _customLoader = new CustomLoader();
+  bool ispassowrd = true;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Container(
-          color: Colors.white,
-          child: ListView(
-            children: [
-              _upperUI(),
-              _form(),
-              SizedBox(
-                height: 30.0,
-              ),
-              Padding(
-                  padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                  child: RoundedButtonWidget(
-                    buttonColor: greenColor,
-                    buttonText: LocaleKeys.key_login,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      if(_formKey.currentState.validate()){
-                       _userLogin(_emailEditingController.text.trim(), _passwordEditingController.text.trim());
-                      }
-
-                    },
-                    isIconDisplay: false,
-                  )),
-              SizedBox(
-                height: 30.0,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 50.0, right: 50.0),
-                child: RoundedButtonWidget(
-                  buttonColor: grey,
-                  buttonText: LocaleKeys.key_create_account,
-                  textColor: Colors.white,
-                  onPressed: () {
-
-                    Utils.pushReplacement(context, RegisterScreen());
-
-                  },
-                  isIconDisplay: false,
-                ),
-              )
-            ],
+    padding: EdgeInsets.all(10.0),
+    child: Container(
+      color: Colors.white,
+      child: ListView(
+        children: [
+          _upperUI(),
+          _form(),
+          SizedBox(
+            height: 30.0,
           ),
-        ),
+          Padding(
+              padding: EdgeInsets.only(left: 15.0, right: 15.0),
+              child: RoundedButtonWidget(
+                buttonColor: greenColor,
+                buttonText: LocaleKeys.key_login,
+                textColor: Colors.white,
+                onPressed: () {
+                  if(_formKey.currentState.validate()){
+                   _userLogin(_emailEditingController.text.trim(), _passwordEditingController.text.trim());
+                  }
+
+                },
+                isIconDisplay: false,
+              )),
+          SizedBox(
+            height: 30.0,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 50.0, right: 50.0),
+            child: RoundedButtonWidget(
+              buttonColor: grey,
+              buttonText: LocaleKeys.key_create_account,
+              textColor: Colors.white,
+              onPressed: () {
+
+                Utils.pushReplacement(context, RegisterScreen());
+
+              },
+              isIconDisplay: false,
+            ),
+          )
+        ],
       ),
-    ));
+    ),
+      ),
+    );
   }
 
   Widget _upperUI() {
@@ -193,6 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TextFormField(
                 keyboardType: TextInputType.text,
                 focusNode: passwordNode,
+                obscureText: ispassowrd,
                 controller: _passwordEditingController,
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (val) {},
@@ -207,9 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   // labelText: 'Rate Of Interest',
                   hintText: "Password",
                   suffixIcon: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                     setState(() {
+                       ispassowrd = !ispassowrd;
+                     });
+                    },
                     child: Icon(
-                      Icons.visibility_off,
+                      ispassowrd ? Icons.visibility_off
+                        : Icons.visibility,
                       color: grey,
                     ),
                   ),

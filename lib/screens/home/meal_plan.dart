@@ -265,5 +265,6 @@ class _MealPlanState extends State<MealPlan> {
     sharedPreferences.setString(LocalStorage.loginResponseModel, null);
     sharedPreferences.setBool(LocalStorage.isLogin, false);
     Utils.pushRemove(context, LoginScreen());
+    Utils.toast("user logout");
   }
 }

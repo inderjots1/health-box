@@ -19,6 +19,7 @@ import 'package:health_box/screens/authentication/login.dart';
 import 'package:health_box/screens/order/Feedback.dart';
 
 import 'package:health_box/screens/order/myOrder.dart';
+import 'package:health_box/screens/order/privacy.dart';
 import 'package:health_box/screens/order/sucessMessage.dart';
 import 'package:health_box/utitlity/CustomLoader.dart';
 import 'package:health_box/utitlity/LocalStorage.dart';
@@ -353,7 +354,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Card(
             child: Column(
               children: [
-                Container(
+                /*Container(
                   padding: EdgeInsets.all(8.0),
                   child: Row(
                     children: [
@@ -384,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Divider(
                   indent: 15.0,
                   endIndent: 15.0,
-                ),
+                ),*/
                 InkWell(
                   onTap: () {
                     Utils.pushReplacement(context, MyOrder());
@@ -617,34 +618,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   indent: 15.0,
                   endIndent: 15.0,
                 ),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Image(
-                        image: AssetImage(Assets.rate_us),
-                        height: 40.0,
-                        width: 40.0,
-                      ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
-                      Expanded(
-                          child: Text(
-                        LocaleKeys.key_rate,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w400),
-                      ).tr()),
-                      Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        size: 20.0,
-                        color: Colors.grey,
-                      )
-                    ],
-                  ),
-                ),
+                InkWell(onTap:(){
+                  Utils.toast("comming soon...");
+                },child: Container(
+                 padding: EdgeInsets.all(8.0),
+                 child: Row(
+                   children: [
+                     Image(
+                       image: AssetImage(Assets.rate_us),
+                       height: 40.0,
+                       width: 40.0,
+                     ),
+                     SizedBox(
+                       width: 10.0,
+                     ),
+                     Expanded(
+                         child: Text(
+                           LocaleKeys.key_rate,
+                           style: TextStyle(
+                               fontSize: 16,
+                               color: Colors.grey,
+                               fontWeight: FontWeight.w400),
+                         ).tr()),
+                     Icon(
+                       Icons.arrow_forward_ios_sharp,
+                       size: 20.0,
+                       color: Colors.grey,
+                     )
+                   ],
+                 ),
+               ),),
                 Divider(
                   indent: 15.0,
                   endIndent: 15.0,
@@ -685,7 +688,7 @@ Utils.pushReplacement(context, Feedbacks());
                 ),
                 InkWell(
                   onTap: () {
-                   // Utils.pushReplacement(context, SucessMessage());
+                   Utils.pushReplacement(context, PrivacyPolicy());
                   },
                   child: Container(
                     padding: EdgeInsets.all(8.0),
@@ -955,18 +958,26 @@ Utils.pushReplacement(context, Feedbacks());
   imageUpload() async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
+
+      await getSecurityLevelToken();
+      var tokens = _authTokenGenerationResposeModel.jwt;
       var request = http.MultipartRequest("POST", Uri.parse(uploadImage));
-      request.headers["Authorization"] = "Bearer " + token;
+      request.headers["Authorization"] = "Bearer ${tokens}";
       var pic =
           await http.MultipartFile.fromPath("file_upload", imageFile.path);
-      print('file${imageFile}');
-      print('paths${imageFile.path}');
+      print('file${tokens}');
+
       request.files.add(pic);
+      print('paths ${request.files.length}');
+      print('headers ${request.headers}');
+      print('fields ${request.fields}');
       var response = await request.send();
       var responseData = await response.stream.toBytes();
       var responseString = String.fromCharCodes(responseData);
       var result = json.decode(responseString);
-      print(" edti${response.statusCode}");
+
+      print(" edti ${result}");
+
       if (response.statusCode == 200) {
         _imageUploadResponseModel = ImageUploadResponseModel.fromJson(result);
         updateImageApiCall(_imageUploadResponseModel.imagePath);
@@ -2302,5 +2313,6 @@ print("responsebody${response.body}  ${response.statusCode}");
     sharedPreferences.setString(LocalStorage.loginResponseModel, null);
     sharedPreferences.setBool(LocalStorage.isLogin, false);
     Utils.pushRemove(context, LoginScreen());
+    Utils.toast("user logout");
   }
 }

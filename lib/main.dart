@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:health_box/screens/home/homeScreen.dart';
 import 'package:health_box/screens/splash.dart';
+import 'package:health_box/screens/splash_home.dart';
 import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,6 +63,6 @@ class _MyAppState extends State<MyApp> {
               primarySwatch: Colors.blue,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            home: islogin == true ? HomeScreen() : SplashScreen());
+            home: SplashHome());
   }
 }

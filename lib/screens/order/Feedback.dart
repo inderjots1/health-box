@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:health_box/constants/colors.dart';
 import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/model/response_model/BuyResponseModel.dart';
 import 'package:health_box/model/response_model/addressResponseModel.dart';
@@ -42,12 +43,12 @@ class AddNewAdressState extends State<Feedbacks> {
   TextEditingController titileController;
   TextEditingController _messsageController;
 
-FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
+  FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
+
   // Focus Nodes
   final FocusNode _name = new FocusNode();
   final FocusNode _messsage = new FocusNode();
   final FocusNode titile = new FocusNode();
-
 
   TextStyle textStyle =
       TextStyle(fontSize: 16.0, color: Colors.black, fontFamily: 'Roboto');
@@ -73,7 +74,6 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
     //getAllDistrict();
     super.initState();
   }
-
 
   /*---------------------------------------- get data from Local Storage -------------------------------------*/
 
@@ -109,6 +109,7 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
             ),
           ),
           body: Container(
+            margin: EdgeInsets.all(5.0),
             color: Colors.white,
             child: Stack(
               children: <Widget>[
@@ -174,13 +175,11 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
                                   focusNode: titile,
                                   onFieldSubmitted: (val) {
                                     setFocusNode(
-                                        context: context,
-                                        focusNode: _messsage);
+                                        context: context, focusNode: _messsage);
                                   },
                                   validator: (String userValur) {
                                     if (userValur.isEmpty) {
-                                      return LocaleKeys.key_title_empty
-                                          .tr();
+                                      return LocaleKeys.key_title_empty.tr();
                                     }
                                   },
                                   decoration: InputDecoration(
@@ -196,7 +195,6 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
 
                               /*district */
 
-
                               /*city */
 
                               /* Phone*/
@@ -208,13 +206,10 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
                                   controller: _messsageController,
                                   focusNode: _messsage,
                                   textInputAction: TextInputAction.done,
-
-                                  onFieldSubmitted: (val) {
-                                  },
+                                  onFieldSubmitted: (val) {},
                                   validator: (String userValur) {
                                     if (userValur.isEmpty) {
-                                      return LocaleKeys.key_no_message
-                                          .tr();
+                                      return LocaleKeys.key_no_message.tr();
                                     }
                                   },
                                   decoration: InputDecoration(
@@ -252,7 +247,7 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
-                    color: Colors.black,
+                    color: greenColor,
                     minWidth: 200.0,
                     child: Text(
                       LocaleKeys.key_submit,
@@ -281,16 +276,20 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
     String title = titileController.text;
     String message = _messsageController.text;
 
-    addAddressAdpCall(name, title, message,);
+    addAddressAdpCall(
+      name,
+      title,
+      message,
+    );
   }
 
   /*---------------------------------------------- Add address api call -----------------------------------------------------*/
 
   addAddressAdpCall(
-      String name,
-      String title,
-      String message,
-    ) async {
+    String name,
+    String title,
+    String message,
+  ) async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
       _customLoader.showLoader(context);
@@ -318,9 +317,10 @@ FeedbackResponseModel _feedbackResponseModel = new FeedbackResponseModel();
               if (_feedbackResponseModel.status == "1") {
                 _customLoader.hideLoader();
                 Utils.toast(_feedbackResponseModel.message);
-_nameController.clear();
-titileController.clear();
-_messsageController.clear();
+                _nameController.clear();
+                titileController.clear();
+                _messsageController.clear();
+                Navigator.pop(context);
               } else {
                 _customLoader.hideLoader();
                 Utils.toast(_feedbackResponseModel.message);
@@ -351,5 +351,4 @@ _messsageController.clear();
     /* _controllerCountry.dispose();*/
     super.dispose();
   }
-
 }

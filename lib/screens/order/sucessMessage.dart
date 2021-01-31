@@ -14,6 +14,8 @@ class SucessMessage extends StatefulWidget {
 }
 
 class _SucessMessageState extends State<SucessMessage> {
+
+  bool password = true;
   @override
   Widget build(BuildContext context) {
     return SafeArea(

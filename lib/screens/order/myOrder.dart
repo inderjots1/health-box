@@ -61,14 +61,22 @@ class _SucessMessageState extends State<MyOrder> {
         getUserProgramEndPoint,body: json.encode(data)
       );
 
+      print("purschase ${response.body}");
       if (response.body != null) {
         if (response.statusCode == 200) {
           _customLoader.hideLoader();
           if (mounted)
             setState(() {
               var result = json.decode(response.body);
-              _orderHistoryResposneModel =
-                  OrderHistoryResposneModel.fromJson(result);
+
+                _orderHistoryResposneModel =
+                    OrderHistoryResposneModel.fromJson(result);
+             if(_orderHistoryResposneModel.status=="2"){
+                Utils.toast("No Programs for User");
+              }else if(_orderHistoryResposneModel.status=="3"){
+                Utils.toast("No Programs for User");
+              }
+
             });
         } else {
           _customLoader.hideLoader();
@@ -88,6 +96,7 @@ class _SucessMessageState extends State<MyOrder> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+          backgroundColor: Colors.white,
           body: Padding(
             padding: EdgeInsets.all(10.0),
             child: Container(
@@ -105,7 +114,9 @@ class _SucessMessageState extends State<MyOrder> {
     return Expanded(
         child: Stack(
           children: [
-            Align(alignment: Alignment.topRight,child: InkWell(onTap: (){},child: Icon(Icons.clear),),),
+            Align(alignment: Alignment.topRight,child: InkWell(onTap: (){
+              Navigator.pop(context);
+            },child: Icon(Icons.clear),),),
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
@@ -128,7 +139,7 @@ class _SucessMessageState extends State<MyOrder> {
                    width: 60.0,
                  ),
              ],),
-             _orderHistoryResposneModel==null?Container():_orderHistoryResposneModel.programs==null?Container():_orderHistoryResposneModel.programs.isEmpty?Column(): Container(child: ListView.builder(
+             _orderHistoryResposneModel==null?Container():_orderHistoryResposneModel.programs==null?Container():_orderHistoryResposneModel.programs.isEmpty?Container(child:Center(child:Text("You don't have purchase any plan"))): Container(child: ListView.builder(
                itemCount: _orderHistoryResposneModel.programs.length,
                shrinkWrap: true,
                physics: NeverScrollableScrollPhysics(),
@@ -146,7 +157,7 @@ class _SucessMessageState extends State<MyOrder> {
                    SizedBox(height: 10.0,),
                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
-                       Text("Finished",style: TextStyle(color: Colors.greenAccent),),
+                       Text(item.statusEn==null?"Pending":item.statusEn,style: TextStyle(color: Colors.greenAccent),),
                        Text("${item.programStartDate}",style: TextStyle(color: Colors.black),)
                      ],),
 
@@ -155,7 +166,7 @@ class _SucessMessageState extends State<MyOrder> {
                },
              ),)
            ],),),
-            Align(
+        /*    Align(
               alignment: Alignment.bottomCenter,
               child: RoundedButtonWidget(
                 buttonColor: greenColor,
@@ -166,7 +177,7 @@ class _SucessMessageState extends State<MyOrder> {
                 },
                 isIconDisplay: false,
               )
-            )
+            )*/
           ],
         ));
   }

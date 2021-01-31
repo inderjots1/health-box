@@ -66,7 +66,9 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                           Align(
                             alignment: Alignment.centerLeft,
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
                               child: Icon(
                                 Icons.clear,
                                 color: Colors.white,

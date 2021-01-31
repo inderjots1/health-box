@@ -235,7 +235,9 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Utils.toast("comming soon...");
+              },
               child: Container(
                 margin: EdgeInsets.all(10.0),
                 child: Image(
@@ -246,7 +248,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Utils.toast("comming soon...");
+              },
               child: Container(
                 margin: EdgeInsets.all(10.0),
                 child: Image(
@@ -257,7 +261,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Utils.toast("comming soon...");
+              },
               child: Container(
                 margin: EdgeInsets.all(10.0),
                 child: Image(
