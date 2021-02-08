@@ -12,10 +12,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'onboarding5.dart';
 
 class OnBoarding4 extends StatefulWidget {
-  String name, email, password, gender, motivation, age;
+  String name, email, password, gender, motivation, age,phone;
 
   OnBoarding4(this.name, this.email, this.password, this.gender,
-      this.motivation, this.age);
+      this.motivation, this.age, this.phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -95,7 +95,7 @@ class _OnBoarding1State extends State<OnBoarding4> {
                                       width: 100,
                                       textColor: Colors.white,
                                       onPressed: () {
-                                        Utils.pushReplacement(context, OnBoarding5(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,this.tall));
+                                        Utils.pushReplacement(context, OnBoarding5(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,this.tall,widget.phone));
 
                                       },
                                       isIconDisplay: false,
@@ -175,7 +175,7 @@ class _OnBoarding1State extends State<OnBoarding4> {
                       if(tall.isEmpty){
                         Utils.toast("please enter, how tall you ");
                       }else {
-                        Utils.pushReplacement(context, OnBoarding5(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,this.tall));
+                        Utils.pushReplacement(context, OnBoarding5(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,this.tall,widget.phone));
                       }
                     },
                     isIconDisplay: false,

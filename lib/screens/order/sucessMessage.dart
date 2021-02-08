@@ -19,14 +19,19 @@ class _SucessMessageState extends State<SucessMessage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-          body: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Container(
-              color: Colors.white,
-              child: Column(
-                children: [
-                  _upperUI()],
+        child: WillPopScope(onWillPop: (){
+          Utils.pushRemove(context, HomeScreen());
+        },
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    _upperUI()],
+                ),
               ),
             ),
           ),
@@ -66,14 +71,14 @@ class _SucessMessageState extends State<SucessMessage> {
                 SizedBox(height: 20.0,),
                 Text(LocaleKeys.key_s1,style: TextStyle(color: Colors.black,fontWeight: FontWeight.w300, fontSize: 16.0),).tr(),
                 SizedBox(height: 20.0,),
-                Text(LocaleKeys.key_s2,style: TextStyle(color: Colors.black,fontWeight: FontWeight.w300, fontSize: 16.0),).tr(),
+              //  Text(LocaleKeys.key_s2,style: TextStyle(color: Colors.black,fontWeight: FontWeight.w300, fontSize: 16.0),).tr(),
               ],),
             ),
             Align(
               alignment: Alignment.bottomCenter,
               child: RoundedButtonWidget(
                 buttonColor: greenColor,
-                buttonText: LocaleKeys.key_calender,
+                buttonText: LocaleKeys.key_done,
                 textColor: Colors.white,
                 onPressed: () {
                   Utils.pushRemove(context, HomeScreen());

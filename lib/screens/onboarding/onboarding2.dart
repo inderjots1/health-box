@@ -10,8 +10,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'onboarding3.dart';
 
 class OnBoarding2 extends StatefulWidget {
-  String name,email,password,gender;
-  OnBoarding2(this.name, this.email,this.password,this.gender);
+  String name,email,password,gender,phone;
+  OnBoarding2(this.name, this.email,this.password,this.gender, this. phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -139,7 +139,7 @@ class _OnBoarding1State extends State<OnBoarding2> {
                       if(motivation.isEmpty){
                         Utils.toast("please select what's motivates you");
                       }else {
-                        Utils.pushReplacement(context, OnBoarding3(widget.name,widget.email,widget.password,widget.gender,this.motivation));
+                        Utils.pushReplacement(context, OnBoarding3(widget.name,widget.email,widget.password,widget.gender,this.motivation,widget.phone));
                       }
                     },
                     isIconDisplay: false,

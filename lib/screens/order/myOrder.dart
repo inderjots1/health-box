@@ -146,13 +146,13 @@ class _SucessMessageState extends State<MyOrder> {
                itemBuilder: (context, i) {
                  var item = _orderHistoryResposneModel.programs[i];
                  return InkWell(onTap: (){
-                   Utils.pushReplacement(context, OrderDetail());
+                 //  Utils.pushReplacement(context, OrderDetail());
                  },child: Container(child:Column(children: [
                    Divider(),
                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      children: [
                        Text("Plan #${item.participationId}",style: TextStyle(color: Colors.black,fontSize: 16.0,fontWeight: FontWeight.w500),),
-                       Text("KD 128.00",style: TextStyle(color: Colors.green),)
+                       Text(item.programPrice==null?"0 KD":"${item.programPrice}Kd",style: TextStyle(color: Colors.green),)
                      ],),
                    SizedBox(height: 10.0,),
                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,8 +160,6 @@ class _SucessMessageState extends State<MyOrder> {
                        Text(item.statusEn==null?"Pending":item.statusEn,style: TextStyle(color: Colors.greenAccent),),
                        Text("${item.programStartDate}",style: TextStyle(color: Colors.black),)
                      ],),
-
-
                  ],),),);
                },
              ),)

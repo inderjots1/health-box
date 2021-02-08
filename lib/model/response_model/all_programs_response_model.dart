@@ -24,6 +24,7 @@ class Programs {
   String programId;
   String programTitleAr;
   String programTitleEn;
+  String program_image_path;
   String programArDescribe;
   String programEnDescribe;
   String programDuration;
@@ -36,6 +37,7 @@ class Programs {
       {this.programId,
         this.programTitleAr,
         this.programTitleEn,
+        this.program_image_path,
         this.programArDescribe,
         this.programEnDescribe,
         this.programDuration,
@@ -47,6 +49,7 @@ class Programs {
   Programs.fromJson(Map<String, dynamic> json) {
     programId = json['program_id'];
     programTitleAr = json['program_title_ar'];
+    program_image_path = json['program_image_path'];
     programTitleEn = json['program_title_en'];
     programArDescribe = json['program_ar_describe'];
     programEnDescribe = json['program_en_describe'];
@@ -61,6 +64,7 @@ class Programs {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['program_id'] = this.programId;
     data['program_title_ar'] = this.programTitleAr;
+    data['program_image_path'] = this.program_image_path;
     data['program_title_en'] = this.programTitleEn;
     data['program_ar_describe'] = this.programArDescribe;
     data['program_en_describe'] = this.programEnDescribe;

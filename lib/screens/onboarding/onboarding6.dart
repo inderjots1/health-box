@@ -26,9 +26,9 @@ import 'package:http/http.dart' as http;
 
 
 class OnBoarding6 extends StatefulWidget {
-  String name, email, password, gender, motivation, age,tall,weight;
+  String name, email, password, gender, motivation, age,tall,weight,phone;
 
-  OnBoarding6(this. name, this. email, this. password, this. gender, this. motivation, this. age, this. tall, this. weight);
+  OnBoarding6(this. name, this. email, this. password, this. gender, this. motivation, this. age, this. tall, this. weight, this. phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -227,8 +227,8 @@ class _OnBoarding1State extends State<OnBoarding6> {
       data['user_name'] = name;
       data['user_email'] = email;
       data['user_password'] = password;
-      data['user_telep'] = "78945612";
-      data['user_another_telep'] = "78945612";
+      data['user_telep'] = widget.phone;
+      data['user_another_telep'] =  widget.phone;
       data['user_gender'] = gender;
       data['user_age'] = age;
       data['user_tall'] = tall;
@@ -294,7 +294,7 @@ class _OnBoarding1State extends State<OnBoarding6> {
           if (_loginResponseModel.status == "1") {
             Utils.pushRemove(context, HomeScreen());
             Utils.toast(_loginResponseModel.message);
-          //  loginDataStoreTOLocalStorage(result);
+            loginDataStoreTOLocalStorage(result);
           } else {
             Utils.toast(_loginResponseModel.message);
           }

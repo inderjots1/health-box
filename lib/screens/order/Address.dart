@@ -9,11 +9,15 @@ import 'package:health_box/generated/locale_keys.g.dart';
 import 'package:health_box/model/response_model/BuyResponseModel.dart';
 import 'package:health_box/model/response_model/addressResponseModel.dart';
 import 'package:health_box/model/response_model/loginResponseMode.dart';
+import 'package:health_box/model/response_model/payment_link_response_model.dart';
+import 'package:health_box/model/response_model/payment_result_response_model.dart';
+import 'package:health_box/screens/order/mypaymentPage.dart';
 import 'package:health_box/screens/order/sucessMessage.dart';
 import 'package:health_box/utitlity/CustomLoader.dart';
 import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:marquee/marquee.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 
@@ -52,6 +56,8 @@ class AddNewAdressState extends State<Payment> {
   TextEditingController _controllerMobile;
   TextEditingController _controllerZipCode;
   TextEditingController _noteController;
+  TextEditingController _avenusController;
+  TextEditingController _houseNumberController;
 
   // Focus Nodes
   final FocusNode _block = new FocusNode();
@@ -64,6 +70,8 @@ class AddNewAdressState extends State<Payment> {
   final FocusNode _country = new FocusNode();
   final FocusNode _zipcode = new FocusNode();
   final FocusNode _note = new FocusNode();
+  final FocusNode _avenusNode = new FocusNode();
+  final FocusNode _houseNumberNode = new FocusNode();
 
   TextStyle textStyle =
       TextStyle(fontSize: 16.0, color: Colors.black, fontFamily: 'Roboto');
@@ -73,12 +81,14 @@ class AddNewAdressState extends State<Payment> {
 
   String strDistict, strAreadID, strStartDate;
   var customFormat = DateFormat('yyyy-MM-dd');
+  PaymentLinkResponseModel _paymentLinkResponseModel = new PaymentLinkResponseModel();
 
   List<AreaItem> _companies;
   List<DropdownMenuItem<AreaItem>> _dropdownMenuItems;
   AreaItem _selectedCompany;
   BuyResponseModel _buyResponseModel = new BuyResponseModel();
   LoginResponseModel user = new LoginResponseModel();
+  PaymentResultResponseModel _paymentResultResponseModel = new PaymentResultResponseModel();
 
   @override
   void initState() {
@@ -90,6 +100,8 @@ class AddNewAdressState extends State<Payment> {
     _controllerMobile = TextEditingController();
     _controllerZipCode = TextEditingController();
     _noteController = TextEditingController();
+    _avenusController = TextEditingController();
+    _houseNumberController = TextEditingController();
     /* _controllerCountry = TextEditingController();*/
     _controllerCity = TextEditingController();
     selectedRadioTile = 0;
@@ -223,9 +235,27 @@ class AddNewAdressState extends State<Payment> {
                         key: _formKey,
                         child: Padding(
                           padding: EdgeInsets.only(
-                              left: 5.0, right: 5.0, top: 1.0, bottom: 1.0),
+                              left: 5.0, right: 5.0, top: 10.0, bottom: 1.0),
                           child: Column(
                             children: <Widget>[
+                          Container(child: Marquee(
+                            text: 'You cannot purchase on Friday',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                            scrollAxis: Axis.horizontal,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            blankSpace: 20.0,
+                            velocity: 100.0,
+                            pauseAfterRound: Duration(seconds: 1),
+                            showFadingOnlyWhenScrolling: true,
+                            fadingEdgeStartFraction: 0.1,
+                            fadingEdgeEndFraction: 0.1,
+                            numberOfRounds: 3,
+                            startPadding: 10.0,
+                            accelerationDuration: Duration(seconds: 1),
+                            accelerationCurve: Curves.linear,
+                            decelerationDuration: Duration(milliseconds: 500),
+                            decelerationCurve: Curves.easeOut,
+                          ),height: 20.0,),
                               /* street 1*/
                               Padding(
                                 padding: EdgeInsets.only(
@@ -237,7 +267,7 @@ class AddNewAdressState extends State<Payment> {
                                   textInputAction: TextInputAction.next,
                                   onFieldSubmitted: (val) {
                                     setFocusNode(
-                                        context: context, focusNode: _block);
+                                        context: context, focusNode: _avenusNode);
                                   },
                                   validator: (String userValur) {
                                     if (userValur.isEmpty) {
@@ -266,6 +296,85 @@ class AddNewAdressState extends State<Payment> {
                               ),*/
                                 ),
                               ),
+
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: 5.0, left: 20.0, right: 20.0),
+                                child: TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  controller: _avenusController,
+                                  focusNode: _avenusNode,
+                                  textInputAction: TextInputAction.next,
+                                  onFieldSubmitted: (val) {
+                                    setFocusNode(
+                                        context: context, focusNode: _block);
+                                  },
+                                  validator: (String userValur) {
+                                    if (userValur.isEmpty) {
+                                      return "please add avenu";
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: "Avenu Number",
+                                      labelText: "Avenu Number",
+                                      labelStyle: textStyle,
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                        BorderSide(color: Colors.black),
+                                      )),
+
+                                  /* decoration: InputDecoration(
+                                labelText: 'Principal',
+                                hintText: 'Enter Principal Amount',
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.pink)),
+                                prefixIcon: const Icon(
+                                  Icons.attach_money,
+                                  color: Colors.pink,
+                                ),
+                              ),*/
+                                ),
+                              ),
+
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: 5.0, left: 20.0, right: 20.0),
+                                child: TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  controller: _houseNumberController,
+                                  focusNode: _houseNumberNode,
+                                  textInputAction: TextInputAction.next,
+                                  onFieldSubmitted: (val) {
+                                    setFocusNode(
+                                        context: context, focusNode: _block);
+                                  },
+                                  validator: (String userValur) {
+                                    if (userValur.isEmpty) {
+                                      return "please enter house number";
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: "House Number",
+                                      labelText: "House Number",
+                                      labelStyle: textStyle,
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                        BorderSide(color: Colors.black),
+                                      )),
+
+                                  /* decoration: InputDecoration(
+                                labelText: 'Principal',
+                                hintText: 'Enter Principal Amount',
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.pink)),
+                                prefixIcon: const Icon(
+                                  Icons.attach_money,
+                                  color: Colors.pink,
+                                ),
+                              ),*/
+                                ),
+                              ),
+
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: 10.0, left: 20.0, right: 20.0),
@@ -341,8 +450,9 @@ class AddNewAdressState extends State<Payment> {
                                   },
                                   validator: (String userValur) {
                                     if (userValur.isEmpty) {
-                                      return LocaleKeys.key_empty_mobile_number
-                                          .tr();
+                                      return "please select Day";
+                                    }else if(selectedDate.weekday==5){
+                                      return "You cannot purchase on Friday";
                                     }
                                   },
                                   decoration: InputDecoration(
@@ -431,7 +541,8 @@ class AddNewAdressState extends State<Payment> {
                     elevation: 6.0,
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        addAddress();
+                        paymentlinkeGeneration();
+                        /*addAddress();*/
                         print("click");
                       }
                     },
@@ -443,7 +554,7 @@ class AddNewAdressState extends State<Payment> {
     );
   }
 
-  void addAddress() {
+  void addAddress(String status) {
     String _block = _controllerBlock.text;
     String _address = _controllerAddress.text;
     String _street1 = _controllerStreetAdress1.text;
@@ -455,7 +566,7 @@ class AddNewAdressState extends State<Payment> {
     String _zipCode = _controllerZipCode.text;
 
     addAddressAdpCall(_block, _address, _street1, _street2, _city, _district,
-        _country, _mobile, _zipCode);
+        _country, _mobile, _zipCode,status);
   }
 
   /*---------------------------------------------- Add address api call -----------------------------------------------------*/
@@ -469,27 +580,29 @@ class AddNewAdressState extends State<Payment> {
       String state,
       String country,
       String mobile,
-      String zipcode) async {
+      String zipcode, String status) async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
-      _customLoader.showLoader(context);
+
       final Map<String, dynamic> data = new Map<String, dynamic>();
       data['user_email'] = user.user.userEmail;
       data['user_password'] = user.user.userPassword;
       data['jwt'] = user.jwt;
-      data['program_id'] = mobile;
+      data['program_id'] = widget.programId;
       data['user_id'] = user.user.userId;
       data['notes'] = _noteController.text;
       data['area_id'] = strAreadID;
       data['block_num'] = strDistict;
       data['street_num'] = _controllerStreetAdress1.text;
-      data['avenus_num'] = " ";
-      data['house_num'] = " ";
+      data['avenus_num'] = _avenusController.text;
+      data['house_num'] = _houseNumberController.text;
       data['start_date'] = strStartDate;
       data['program_duration'] = widget.programDuration;
-      data['payment_status_id'] = "4";
-      data['TranID'] = "1212112121";
-      data['TrackID'] = "12121";
+      data['payment_status_id'] = status;
+      data['TranID'] = _paymentResultResponseModel.tranID;
+      data['order_id'] = _paymentResultResponseModel.orderID;
+      data['PaymentID'] = _paymentResultResponseModel.paymentID;
+      data['TrackID'] = _paymentResultResponseModel.trackID;
       data['price'] = widget.programCost;
 
       print("encode json ${json.encode(data)}");
@@ -557,8 +670,102 @@ class AddNewAdressState extends State<Payment> {
     if (picked != null && picked != selectedDate) if (mounted)
       setState(() {
         selectedDate = picked;
+        if(selectedDate.weekday==5) {
+          Utils.toast("Friday");
+        }
         strStartDate = customFormat.format(selectedDate);
         _controllerMobile.text = strStartDate;
       });
+  }
+
+  Future<void> paymentlinkeGeneration() async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+      final Map<String, dynamic> data = new Map<String, dynamic>();
+      data['total_price'] = widget.programCost;
+      data['user_name'] = user.user.userName;
+      data['user_email'] = user.user.userEmail;
+      data['user_telep'] = user.user.userTelep;
+
+
+      print("encode json ${json.encode(data)}");
+      final response = await http.post(paymentApi,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: json.encode(data));
+
+      print("Address ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (mounted)
+          setState(() async {
+            if (response.statusCode == 200) {
+              var result = json.decode(response.body);
+              _paymentLinkResponseModel = PaymentLinkResponseModel.fromJson(result);
+              if (_paymentLinkResponseModel.status == "1") {
+                _customLoader.hideLoader();
+              var myurlfinal = await Navigator.push(
+                    context, MaterialPageRoute(builder: (BuildContext) =>  MyPaymentPage(_paymentLinkResponseModel.linkPayment)));
+print ("mypaymentUrl ${myurlfinal}");
+hitapiStatusIdentify(myurlfinal);
+              } else {
+                _customLoader.hideLoader();
+                Utils.toast(_buyResponseModel.message);
+              }
+            } else {
+              _customLoader.hideLoader();
+              if (response.statusCode == 401) {
+              } else {
+                Utils.toast("${response.statusCode} ");
+              }
+            }
+          });
+      } else {
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
+  }
+
+  Future<void> hitapiStatusIdentify(myurlfinal) async {
+    bool isConnected = await isConnectedToInternet();
+    if (isConnected == true) {
+      _customLoader.showLoader(context);
+
+      final response = await http.post(myurlfinal);
+
+      print("Address ${response.body}");
+      if (response.body != null) {
+        _customLoader.hideLoader();
+        if (mounted)
+          setState(() async {
+            if (response.statusCode == 200) {
+              var result = json.decode(response.body);
+              _paymentResultResponseModel = PaymentResultResponseModel.fromJson(result);
+              if (_paymentResultResponseModel.status == "1") {
+                addAddress("3");
+              } else {
+                addAddress("4");
+              }
+            } else {
+              _customLoader.hideLoader();
+              if (response.statusCode == 401) {
+              } else {
+                Utils.toast("${response.statusCode} ");
+              }
+            }
+          });
+      } else {
+        Utils.toast(generalError);
+        _customLoader.hideLoader();
+      }
+    } else {
+      Utils.toast(noInternetError);
+    }
   }
 }

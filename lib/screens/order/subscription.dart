@@ -15,7 +15,7 @@ class SubscriptionPlan extends StatefulWidget {
       programDiscount,
       programDuration,
       programCost,
-  programTitleEn,
+      programTitleEn,
       programTitleAr;
 
   SubscriptionPlan(
@@ -24,14 +24,15 @@ class SubscriptionPlan extends StatefulWidget {
       this.programId,
       this.programDiscount,
       this.programDuration,
-      this.programCost, this. programTitleEn, this. programTitleAr);
+      this.programCost,
+      this.programTitleEn,
+      this.programTitleAr);
 
   @override
   _SubscriptionPlanState createState() => _SubscriptionPlanState();
 }
 
 class _SubscriptionPlanState extends State<SubscriptionPlan> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -50,7 +51,6 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
             ),
           ),
           SingleChildScrollView(
-
             child: Container(
               padding: EdgeInsets.only(bottom: 55.0),
               child: Column(
@@ -103,11 +103,16 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                         children: [
                           Text(
                             LocaleKeys.key_is_time,
-                            style: TextStyle(color: Colors.white, fontSize: 14.0),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 14.0),
                           ).tr(),
                           Text(
-                            EasyLocalization.of(context).locale.languageCode == "en"?widget.programTitleEn:widget.programTitleAr,
-                            style: TextStyle(color: Colors.white, fontSize: 25.0),
+                            EasyLocalization.of(context).locale.languageCode ==
+                                    "en"
+                                ? widget.programTitleEn
+                                : widget.programTitleAr,
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 25.0),
                           ).tr()
                         ],
                       ))
@@ -136,7 +141,8 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("Program Duration: ${widget.programDuration}"),
+                                Text(
+                                    "Program Duration: ${widget.programDuration}"),
                                 SizedBox(
                                   height: 20.0,
                                 ),
@@ -149,7 +155,7 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                             ),
                           ),
                         ),
-                       /* Expanded(
+                        /* Expanded(
                           child: Container(
                             height: 180.0,
                             decoration: BoxDecoration(
@@ -256,12 +262,11 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(15.0),
-
-                      child: Text(
-                          EasyLocalization.of(context).locale.languageCode == "en"
-                              ? widget.programEnDescribe
-                              : widget.programArDescribe),
-                    ),
+                    child: Text(
+                        EasyLocalization.of(context).locale.languageCode == "en"
+                            ? widget.programEnDescribe
+                            : widget.programArDescribe),
+                  ),
                 ],
               ),
             ),
@@ -274,9 +279,16 @@ class _SubscriptionPlanState extends State<SubscriptionPlan> {
                   buttonColor: greenColor,
                   buttonText: LocaleKeys.key_subscribe,
                   textColor: Colors.white,
-                  onPressed: () {
-                    Utils.pushReplacement(context, Payment(widget.programId,widget.programCost,widget.programDuration));
+                  onPressed: () async {
+             Navigator.push(
+                        context, MaterialPageRoute(builder: (BuildContext) =>  Payment(widget.programId, widget.programCost,
+                        widget.programDuration)));
+
+
+
+
                   },
+
                   isIconDisplay: false,
                 )),
           )

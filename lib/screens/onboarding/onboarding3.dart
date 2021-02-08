@@ -12,10 +12,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:material_segmented_control/material_segmented_control.dart';
 
 class OnBoarding3 extends StatefulWidget {
-  String name, email, password, gender, motivation;
+  String name, email, password, gender, motivation,phone;
 
   OnBoarding3(
-      this.name, this.email, this.password, this.gender, this.motivation);
+      this.name, this.email, this.password, this.gender, this.motivation, this. phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -94,7 +94,7 @@ TextEditingController _textEditingController = new TextEditingController();
                                       width: 100,
                                       textColor: Colors.white,
                                       onPressed: () {
-                                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age));
+                                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age,widget.phone));
                                       },
                                       isIconDisplay: false,
                                     ),
@@ -152,7 +152,7 @@ TextEditingController _textEditingController = new TextEditingController();
                       if(Age.isEmpty){
                         Utils.toast("please enter age");
                       }else{
-                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age));
+                        Utils.pushReplacement(context, OnBoarding4(widget.name,widget.email,widget.password,widget.gender,widget.motivation,this.Age,widget.phone));
                       }
 
                     },

@@ -234,7 +234,7 @@ class _MealPlanState extends State<MealPlan> {
                     height: 10.0,
                   ),
                   Utils.cardView(
-                      Assets.smile,
+                      imageRenderUrl+item.program_image_path,
                       EasyLocalization.of(context).locale.languageCode == "en"
                           ? item.programTitleEn
                           : item.programTitleAr,

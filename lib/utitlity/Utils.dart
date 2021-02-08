@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +11,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 class Utils {
   /*---------------------------- go to next route -------------------------*/
-  static void pushReplacement(context, dartName) {
+  static  pushReplacement(context, dartName) {
     Timer(
         Duration(milliseconds: 200),
         () => Navigator.push(
@@ -144,57 +146,51 @@ class Utils {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time_rounded,
-                            color: Colors.white,
-                            size: 25.0,
-                          ),
-                          SizedBox(
-                            width: 10.0,
-                          ),
-                          Text(
-                            "${Days} day",
-                            style:
-                            TextStyle(fontSize: 16.0, color: Colors.white),
-                          ),
-                          SizedBox(
-                            width: 20.0,
-                          ),
-                          Image(
-                            image: AssetImage(
-                              Assets.user_flow,
-                            ),
-                            width: 25.0,
-                            height: 22.0,
-                          ),
-                          SizedBox(
-                            width: 10.0,
-                          ),
-                          Text(
-                            programTypeEn,
-                            style:
-                            TextStyle(fontSize: 16.0, color: Colors.white),
-                          ),
-                          SizedBox(
-                            width: 15.0,
-                          ),
-                          Text(
-                            "Price : ${price}",
-                            textAlign: TextAlign.end,
-                            style:
-                            TextStyle(fontSize: 16.0, color: Colors.white),
-                          )
 
-                        ],
+                      Expanded(child: Container(color: Colors.grey[400],child: Row(children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.white,
+                          size: 25.0,
+                        ),
+                        SizedBox(
+                          width: 5.0,
+                        ),
+                        Text(
+                          "${Days} day",
+                          style:
+                          TextStyle(fontSize: 16.0, color: Colors.white),
+                        ),
+                      ],),)),
+                      Expanded(child: Container(color: Colors.grey[400],child: Row(children: [ Image(
+                        image: AssetImage(
+                          Assets.user_flow,
+                        ),
+                        width: 25.0,
+                        height: 22.0,
                       ),
-                      SizedBox(width: 10.0,),
-                      Row(crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        SizedBox(
+                          width: 5.0,
+                        ),
+                        Expanded(child: Text(
+                          programTypeEn,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                          TextStyle(fontSize: 16.0, color: Colors.white),
+                        ),)
 
-    ],)
+                      ],),)),
+                      Expanded(child: Container(color: Colors.grey[400],child:
+                      Text(
+                        "Price : ${price}",
+                        textAlign: TextAlign.end,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                        TextStyle(fontSize: 16.0, color: Colors.white),
+                      ),)),
+
                     ],
                   ),
                 ),
@@ -214,10 +210,18 @@ class Utils {
                   children: [
                     Padding(
                       padding: EdgeInsets.all(12.0),
-                      child: Image(
-                        image: AssetImage(image),
-                        width: 30.0,
-                        height: 30.0,
+                      child: Container(
+                        height: 30.0,width: 30.0,
+                        child: ExtendedImage.network(
+                          image,
+                          width:30,
+                          height:30,
+                          fit: BoxFit.fill,
+                          cache: true,
+                          border: Border.all(color: Colors.red, width: 1.0),
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                          //cancelToken: cancellationToken,
+                        ),
                       ),
                     ),
                     Expanded(

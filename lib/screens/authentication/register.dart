@@ -22,12 +22,14 @@ class _LoginScreenState extends State<RegisterScreen> {
   var _formKey = GlobalKey<FormState>();
   TextEditingController _nameEditingController = new TextEditingController();
   TextEditingController _emailEditingController = new TextEditingController();
+  TextEditingController _phoneEditingController = new TextEditingController();
   TextEditingController _passwordEditingController =
       new TextEditingController();
   TextEditingController _confirmPasswordEditingController =
-  new TextEditingController();
+      new TextEditingController();
   FocusNode nameNode = new FocusNode();
   FocusNode emailNode = new FocusNode();
+  FocusNode phoneNode = new FocusNode();
   FocusNode passwordNode = new FocusNode();
   FocusNode confirmPasswordNode = new FocusNode();
 
@@ -57,9 +59,14 @@ class _LoginScreenState extends State<RegisterScreen> {
                     buttonText: LocaleKeys.key_signup,
                     textColor: Colors.white,
                     onPressed: () {
-                     if(_formKey.currentState.validate()){
-                       Utils.pushReplacement(context, OnBoarding1(_nameEditingController.text,_emailEditingController.text,_passwordEditingController.text));
-                     }
+                      if (_formKey.currentState.validate()) {
+                        Utils.pushReplacement(
+                            context,
+                            OnBoarding1(
+                                _nameEditingController.text,
+                                _emailEditingController.text,
+                                _passwordEditingController.text,_phoneEditingController.text));
+                      }
                     },
                     isIconDisplay: false,
                   )),
@@ -192,10 +199,10 @@ class _LoginScreenState extends State<RegisterScreen> {
                 controller: _emailEditingController,
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (val) {
-                  setFocusNode(context: context, focusNode: passwordNode);
+                  setFocusNode(context: context, focusNode: phoneNode);
                 },
                 validator: (String value) {
-                  return emailValidator(context: context,email: value);
+                  return emailValidator(context: context, email: value);
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -222,20 +229,58 @@ class _LoginScreenState extends State<RegisterScreen> {
               height: 15.0,
             ),
             TextFormField(
+                keyboardType: TextInputType.number,
+                focusNode: phoneNode,
+                controller: _phoneEditingController,
+                maxLength: 8,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (val) {
+                  setFocusNode(context: context, focusNode: passwordNode);
+                },
+                validator: (String value) {
+                  return fieldchecker(
+                      context: context,
+                      name: "Phone Number",
+                      newPassword: value);
+                },
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: s10color,
+                  // labelText: 'Rate Of Interest',
+                  hintText: "Phone Number",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: s10color, width: 1.0),
+                  ),
+                  contentPadding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 20.0),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: s10color, width: 1.0),
+                    borderRadius: BorderRadius.circular(
+                      10.0,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: s10color, width: 1.0),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                )),
+            SizedBox(
+              height: 15.0,
+            ),
+            TextFormField(
                 keyboardType: TextInputType.text,
                 focusNode: passwordNode,
                 controller: _passwordEditingController,
                 textInputAction: TextInputAction.next,
                 obscureText: passwordVisible,
                 onFieldSubmitted: (val) {
-                  setFocusNode(context: context, focusNode: confirmPasswordNode);
-
+                  setFocusNode(
+                      context: context, focusNode: confirmPasswordNode);
                 },
                 validator: (String value) {
                   myPassword = value;
                   return passwordValidator(
-                      newPassword: value,
-                      context: context);
+                      newPassword: value, context: context);
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -244,15 +289,12 @@ class _LoginScreenState extends State<RegisterScreen> {
                   hintText: "Password",
                   suffixIcon: IconButton(
                     icon: Icon(
-                      passwordVisible
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                      passwordVisible ? Icons.visibility_off : Icons.visibility,
                       color: greenColor,
                     ),
                     onPressed: () {
                       setState(() {
-                        passwordVisible =
-                        !passwordVisible;
+                        passwordVisible = !passwordVisible;
                       });
                     },
                   ),
@@ -302,8 +344,7 @@ class _LoginScreenState extends State<RegisterScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        cpasswordVisible =
-                        !cpasswordVisible;
+                        cpasswordVisible = !cpasswordVisible;
                       });
                     },
                   ),

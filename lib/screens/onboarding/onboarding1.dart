@@ -12,9 +12,9 @@ import 'onboarding2.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class OnBoarding1 extends StatefulWidget {
-  String name,email,password;
+  String name,email,password,phone;
 
-  OnBoarding1(this.name, this.email, this.password);
+  OnBoarding1(this.name, this.email, this.password, this. phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -150,7 +150,7 @@ class _OnBoarding1State extends State<OnBoarding1> {
                       if(gender.isEmpty){
                         Utils.toast("please select gender");
                       }else {
-                        Utils.pushReplacement(context, OnBoarding2(widget.name,widget.email,widget.password,this.gender));
+                        Utils.pushReplacement(context, OnBoarding2(widget.name,widget.email,widget.password,this.gender,widget.phone));
                       }
                     },
                     isIconDisplay: false,

@@ -24,6 +24,7 @@ const getAreaEndPoint =baseUrl+"GetArea.php";
 const addProgramEndPoint =baseUrl+"AddPrograms.php";
 const getUserProgramEndPoint =baseUrl+"GetUserPrograms.php";
 const addFeeds =baseUrl+"AddFeeds.php";
+const paymentApi =baseUrl+"payment_upay.php";
 const privacyPolicyUrl ="https://www.privacypolicyonline.com/live.php?token=HsXzuDDehz9j3kpMabSLpmKQjktsXVwV";
 
 void setFocusNode({

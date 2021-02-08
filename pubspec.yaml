@@ -45,6 +45,9 @@ dependencies:
   date_range_picker: ^1.0.5
   webview_flutter: ^1.0.7
   dio:
+  cached_network_image:
+  extended_image:
+  marquee:
 
 dev_dependencies:
   flutter_test:

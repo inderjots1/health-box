@@ -13,9 +13,9 @@ import 'package:material_segmented_control/material_segmented_control.dart';
 import 'onboarding6.dart';
 
 class OnBoarding5 extends StatefulWidget {
-  String name, email, password, gender, motivation, age,tall;
+  String name, email, password, gender, motivation, age,tall,phone;
 
-  OnBoarding5(this.name, this. email, this. password, this. gender, this. motivation,this. age, this. tall);
+  OnBoarding5(this.name, this. email, this. password, this. gender, this. motivation,this. age, this. tall, this. phone);
 
   @override
   _OnBoarding1State createState() => _OnBoarding1State();
@@ -99,7 +99,7 @@ class _OnBoarding1State extends State<OnBoarding5> {
                                           width: 100,
                                           textColor: Colors.white,
                                           onPressed: () {
-                                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight));
+                                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight,widget.phone));
 
                                           },
                                           isIconDisplay: false,
@@ -175,7 +175,7 @@ class _OnBoarding1State extends State<OnBoarding5> {
                           if(weight.isEmpty){
                             Utils.toast("please enter weight");
                           }else{
-                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight));
+                            Utils.pushReplacement(context, OnBoarding6(widget.name,widget.email,widget.password,widget.gender,widget.motivation,widget.age,widget.tall,this.weight,widget.phone));
                           }
 
                         },

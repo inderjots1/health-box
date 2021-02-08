@@ -28,20 +28,29 @@ class OrderHistoryResposneModel {
 }
 
 class Programs {
-  Null statusEn;
-  Null statusAr;
+  String programId;
+  String programPrice;
+  String programDiscount;
+  String statusEn;
+  String statusAr;
   String participationId;
   String programStartDate;
   String programEndDate;
 
   Programs(
-      {this.statusEn,
+      {this.programId,
+        this.programPrice,
+        this.programDiscount,
+        this.statusEn,
         this.statusAr,
         this.participationId,
         this.programStartDate,
         this.programEndDate});
 
   Programs.fromJson(Map<String, dynamic> json) {
+    programId = json['program_id'];
+    programPrice = json['program_price'];
+    programDiscount = json['program_discount'];
     statusEn = json['status_en'];
     statusAr = json['status_ar'];
     participationId = json['participation_id'];
@@ -51,6 +60,9 @@ class Programs {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['program_id'] = this.programId;
+    data['program_price'] = this.programPrice;
+    data['program_discount'] = this.programDiscount;
     data['status_en'] = this.statusEn;
     data['status_ar'] = this.statusAr;
     data['participation_id'] = this.participationId;
