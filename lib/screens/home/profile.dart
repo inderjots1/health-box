@@ -1636,6 +1636,7 @@ Utils.pushReplacement(context, Feedbacks());
   getCurrentProfile() async {
     bool isConnected = await isConnectedToInternet();
     if (isConnected == true) {
+      _customLoader.showLoader(context);
       final Map<String, dynamic> data = new Map<String, dynamic>();
       data['user_email'] = user.user.userEmail;
       data['user_password'] = user.user.userPassword;
@@ -1647,8 +1648,10 @@ Utils.pushReplacement(context, Feedbacks());
           },
           body: json.encode(data));
       print("reg ${response.body}");
+      print("email  ${user.user.userEmail} password ${user.user.userPassword}");
       if (response.body != null) {
         if (response.statusCode == 200) {
+          _customLoader.hideLoader();
           var result = json.decode(response.body);
           _getProfileResponseModel = GetProfileResponseModel.fromJson(result);
           if (_getProfileResponseModel.status == "1") {
@@ -1663,10 +1666,13 @@ Utils.pushReplacement(context, Feedbacks());
                 isSwitched1 = true;
               });
             }
-          } else {
+          } else if(_getProfileResponseModel.status == "0") {
+            Utils.toast("your session was expired..");
+            _clearAllData();
             Utils.toast(_getProfileResponseModel.message);
           }
         } else {
+          _customLoader.hideLoader();
           if (response.statusCode == 400) {
             var result = json.decode(response.body);
             _getProfileResponseModel = GetProfileResponseModel.fromJson(result);
@@ -1676,6 +1682,7 @@ Utils.pushReplacement(context, Feedbacks());
           }
         }
       } else {
+        _customLoader.hideLoader();
         Utils.toast(generalError);
       }
     } else {

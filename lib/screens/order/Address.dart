@@ -239,7 +239,7 @@ class AddNewAdressState extends State<Payment> {
                           child: Column(
                             children: <Widget>[
                           Container(child: Marquee(
-                            text: 'You cannot purchase on Friday',
+                            text: 'You cannot purchase on Thursday',
                             style: TextStyle(fontWeight: FontWeight.bold),
                             scrollAxis: Axis.horizontal,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +253,7 @@ class AddNewAdressState extends State<Payment> {
                             startPadding: 10.0,
                             accelerationDuration: Duration(seconds: 1),
                             accelerationCurve: Curves.linear,
-                            decelerationDuration: Duration(milliseconds: 500),
+                          decelerationDuration: Duration(milliseconds: 500),
                             decelerationCurve: Curves.easeOut,
                           ),height: 20.0,),
                               /* street 1*/
@@ -451,8 +451,8 @@ class AddNewAdressState extends State<Payment> {
                                   validator: (String userValur) {
                                     if (userValur.isEmpty) {
                                       return "please select Day";
-                                    }else if(selectedDate.weekday==5){
-                                      return "You cannot purchase on Friday";
+                                    }else if(selectedDate.weekday==4){
+                                      return "You cannot purchase on Thursday";
                                     }
                                   },
                                   decoration: InputDecoration(
@@ -671,7 +671,7 @@ class AddNewAdressState extends State<Payment> {
       setState(() {
         selectedDate = picked;
         if(selectedDate.weekday==5) {
-          Utils.toast("Friday");
+          Utils.toast("Thursday");
         }
         strStartDate = customFormat.format(selectedDate);
         _controllerMobile.text = strStartDate;
