@@ -63,9 +63,9 @@ class _LoginScreenState extends State<RegisterScreen> {
                         Utils.pushReplacement(
                             context,
                             OnBoarding1(
-                                _nameEditingController.text,
-                                _emailEditingController.text,
-                                _passwordEditingController.text,_phoneEditingController.text));
+                                _nameEditingController.text.trim(),
+                                _emailEditingController.text.trim(),
+                                _passwordEditingController.text.trim(),_phoneEditingController.text.trim()));
                       }
                     },
                     isIconDisplay: false,

@@ -135,7 +135,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          InkWell(
+
+          Align(
+              alignment: Alignment.center,
+              child: Container(
+                  height: 110.0,
+                  width: 110.0,
+                  child: Stack(
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 52,
+                        backgroundColor: Colors.white,
+                        child:ClipRRect(
+                          borderRadius: BorderRadius.circular(80.0),
+                          child: Image(
+                            image: _getProfileResponseModel == null
+                                ? AssetImage(Assets.avtar)
+                                : _getProfileResponseModel.user == null
+                                ? AssetImage(Assets.avtar)
+                                : _getProfileResponseModel.user.userImagePath == ""
+                                ? AssetImage(Assets.avtar)
+                                : NetworkImage(imageRenderUrl +
+                                _getProfileResponseModel.user.userImagePath),
+                            height: 80.0,
+                            width: 80.0,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: FractionalOffset.bottomRight,
+                        child: FloatingActionButton(
+                          onPressed: () {
+                            _showSelectionDialog(context);
+                          },
+                          mini: true,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 20.0,
+                            color: Colors.white,
+                          ),
+                          elevation: 4.0,
+                          backgroundColor: Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ))),
+
+         /* InkWell(
             onTap: () {
               _showSelectionDialog(context);
             },
@@ -155,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fit: BoxFit.fill,
               ),
             ),
-          ),
+          ),*/
           SizedBox(
             height: 10.0,
           ),
@@ -961,7 +1008,7 @@ Utils.pushReplacement(context, Feedbacks());
 
       await getSecurityLevelToken();
       var tokens = _authTokenGenerationResposeModel.jwt;
-      var request = http.MultipartRequest("POST", Uri.parse(uploadImage));
+      var request = http.MultipartRequest("POST",Uri.parse(uploadImage));
       request.headers["Authorization"] = "Bearer ${tokens}";
       var pic =
           await http.MultipartFile.fromPath("file_upload", imageFile.path);
@@ -1341,7 +1388,7 @@ Utils.pushReplacement(context, Feedbacks());
                                     padding: EdgeInsets.only(top: 20.0),
                                     child: TextFormField(
                                       keyboardType: TextInputType.number,
-                                      textInputAction: TextInputAction.done,
+                                      textInputAction: TextInputAction.done,maxLength: 4,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.0,
@@ -1489,6 +1536,7 @@ Utils.pushReplacement(context, Feedbacks());
                                     child: TextFormField(
                                       keyboardType: TextInputType.number,
                                       textInputAction: TextInputAction.done,
+                                      maxLength: 4,
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 14.0,

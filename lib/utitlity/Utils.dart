@@ -212,15 +212,9 @@ class Utils {
                       padding: EdgeInsets.all(12.0),
                       child: Container(
                         height: 30.0,width: 30.0,
-                        child: ExtendedImage.network(
-                          image,
-                          width:30,
-                          height:30,
-                          fit: BoxFit.fill,
-                          cache: true,
-                          border: Border.all(color: Colors.red, width: 1.0),
-                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                          //cancelToken: cancellationToken,
+                        child: FadeInImage.assetNetwork(
+                          placeholder: Assets.appLogo,
+                          image: image,
                         ),
                       ),
                     ),

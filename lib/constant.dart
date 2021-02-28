@@ -6,12 +6,12 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 
-const   baseUrl = "http://healthyboxq8.com/api/webservices/api/";
-const   imageRenderUrl = "http://healthyboxq8.com/api/";
+const   baseUrl = "http://healthyboxq8.com/webservices/api/";
+const   imageRenderUrl = "http://www.healthyboxq8.com/";
 
 const endPointTokenGeneration =baseUrl+"autherization.php";
 
-const uploadImage =baseUrl+"UploadProfileImage.php";
+const uploadImage =baseUrl+"upload_images.php";
 const endPointAllProgram =baseUrl+"GetPrograms.php";
 const registerUser = baseUrl+"CreateUser.php";
 const loginUser =baseUrl+"LoginUser.php";
