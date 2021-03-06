@@ -1,6 +1,6 @@
 // DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const key_app_name = 'key_app_name';
   static const key_welcome = 'key_welcome';
   static const key_create_account = 'key_create_account';
@@ -235,7 +235,8 @@ abstract class  LocaleKeys {
   static const key_reset = 'key_reset';
   static const key_sort = 'key_sort';
   static const key_add_auction_store = 'key_add_auction_store';
-  static const key_auction_store_access_denied = 'key_auction_store_access_denied';
+  static const key_auction_store_access_denied =
+      'key_auction_store_access_denied';
   static const key_not_create_auction_store = 'key_not_create_auction_store';
   static const key_update = 'key_update';
   static const key_example_app = 'key_example_app';
@@ -278,7 +279,8 @@ abstract class  LocaleKeys {
   static const key_book_now = 'key_book_now';
   static const key_car_booking = 'key_car_booking';
   static const key_enter_source_location = 'key_enter_source_location';
-  static const key_enter_destination_location = 'key_enter_destination_location';
+  static const key_enter_destination_location =
+      'key_enter_destination_location';
   static const key_enter_start_date = 'key_enter_start_date';
   static const key_enter_end_date = 'key_enter_end_date';
   static const key_enter_name = 'key_enter_name';
@@ -370,44 +372,45 @@ abstract class  LocaleKeys {
   static const key_Other_Charges = 'key_Other_Charges';
   static const key_Discount = 'key_Discount';
   static const key_produt_featured_detail = 'key_produt_featured_detail';
-  static const key_produt_Important_Information = 'key_produt_Important_Information';
+  static const key_produt_Important_Information =
+      'key_produt_Important_Information';
   static const key_Quantity = 'key_Quantity';
   static const key_min_Quantity = 'key_min_Quantity';
-  static const key_Gst  = 'key_Gst';
-  static const key_OtherCharges  = 'key_OtherCharges';
-  static const key_OfferName  = 'key_OfferName';
-  static const key_OfferPercentage  = 'key_OfferPercentage';
-  static const key_Offer_ExpiryDate  = 'key_Offer_ExpiryDate';
-  static const key_sku  = 'key_sku';
-  static const key_BrandName  = 'key_BrandName';
-  static const key_VendorName  = 'key_VendorName';
-  static const key_skip  = 'key_skip';
-  static const key_trendy  = 'key_trendy';
-  static const key_cartEmpty  = 'key_cartEmpty';
-  static const key_cartEmptyTEXT  = 'key_cartEmptyTEXT';
-  static const key_products  = 'key_products';
-  static const key_auction_p  = 'key_auction_p';
-  static const key_cart_have_item_messages  = 'key_cart_have_item_messages';
-  static const key_subscription  = 'key_subscription';
-  static const key_is_time  = 'key_is_time';
-  static const key_lose_weight  = 'key_lose_weight';
-  static const key_subscribe  = 'key_subscribe';
-  static const key_monthly  = 'key_monthly';
-  static const key_free_trial  = 'key_free_trial';
-  static const key_week  = 'key_week';
-  static const key_week_detail  = 'key_week_detail';
-  static const key_month_three  = 'key_month_three';
-  static const key_pick_meal_plan  = 'key_pick_meal_plan';
-  static const key_veg_plan  = 'key_veg_plan';
-  static const key_vegh1  = 'key_vegh1';
-  static const key_vegh2  = 'key_vegh2';
-  static const key_healthy_food_plan  = 'key_healthy_food_plan';
-  static const key_your_C_palin  = 'key_your_C_palin';
-  static const key_health1  = 'key_health1';
-  static const key_health2  = 'key_health2';
-  static const key_keto_plan  = 'key_keto_plan';
-  static const key_keto1  = 'key_keto1';
-  static const key_keto2  = 'key_keto2';
+  static const key_Gst = 'key_Gst';
+  static const key_OtherCharges = 'key_OtherCharges';
+  static const key_OfferName = 'key_OfferName';
+  static const key_OfferPercentage = 'key_OfferPercentage';
+  static const key_Offer_ExpiryDate = 'key_Offer_ExpiryDate';
+  static const key_sku = 'key_sku';
+  static const key_BrandName = 'key_BrandName';
+  static const key_VendorName = 'key_VendorName';
+  static const key_skip = 'key_skip';
+  static const key_trendy = 'key_trendy';
+  static const key_cartEmpty = 'key_cartEmpty';
+  static const key_cartEmptyTEXT = 'key_cartEmptyTEXT';
+  static const key_products = 'key_products';
+  static const key_auction_p = 'key_auction_p';
+  static const key_cart_have_item_messages = 'key_cart_have_item_messages';
+  static const key_subscription = 'key_subscription';
+  static const key_is_time = 'key_is_time';
+  static const key_lose_weight = 'key_lose_weight';
+  static const key_subscribe = 'key_subscribe';
+  static const key_monthly = 'key_monthly';
+  static const key_free_trial = 'key_free_trial';
+  static const key_week = 'key_week';
+  static const key_week_detail = 'key_week_detail';
+  static const key_month_three = 'key_month_three';
+  static const key_pick_meal_plan = 'key_pick_meal_plan';
+  static const key_veg_plan = 'key_veg_plan';
+  static const key_vegh1 = 'key_vegh1';
+  static const key_vegh2 = 'key_vegh2';
+  static const key_healthy_food_plan = 'key_healthy_food_plan';
+  static const key_your_C_palin = 'key_your_C_palin';
+  static const key_health1 = 'key_health1';
+  static const key_health2 = 'key_health2';
+  static const key_keto_plan = 'key_keto_plan';
+  static const key_keto1 = 'key_keto1';
+  static const key_keto2 = 'key_keto2';
   static const key_loose_plan = 'key_loose_plan';
   static const key_loose_plan1 = 'key_loose_plan1';
   static const key_loose_plan2 = 'key_loose_plan2';

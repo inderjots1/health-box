@@ -476,6 +476,7 @@ class AddNewAdressState extends State<Payment> {
                               ),*/
                                 ),
                               ),
+
                               Padding(
                                 padding: EdgeInsets.only(
                                     top: 5.0, left: 20.0, right: 20.0),

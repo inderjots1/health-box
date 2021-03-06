@@ -36,7 +36,7 @@ class OnBoarding6 extends StatefulWidget {
 
 class _OnBoarding1State extends State<OnBoarding6> {
   int _currentSelection = 0;
-  Map<int, Widget> _children = {
+  Map<int, Widget> _cchildren = {
     0: Text(LocaleKeys.key_lb).tr(),
     1: Text(LocaleKeys.key_kg).tr(),
   };

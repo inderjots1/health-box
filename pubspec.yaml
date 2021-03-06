@@ -32,14 +32,14 @@ dependencies:
   calendar_flutter:
   shared_preferences:
   intl:
-  easy_localization:
+  easy_localization: 3.0.0
   flutter_offline:
   data_connection_checker:
   image_picker: ^0.6.7+4
   firebase_messaging:
   flutter_local_notifications:
   flutter_spinkit:
-  fluttertoast:
+  fluttertoast: 7.1.8
   http:
   share: ^0.6.5+4
   date_range_picker: ^1.0.5
