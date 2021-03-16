@@ -253,10 +253,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image(
-                image: AssetImage(Assets.phone),
-                height: 25.0,
-                width: 25.0,
+              InkWell(onTap: (){
+                phoneUpdateDialog(context);
+              },
+                child: Image(
+                  image: AssetImage(Assets.phone),
+                  height: 25.0,
+                  width: 25.0,
+                ),
               ),
               SizedBox(
                 width: 8.0,

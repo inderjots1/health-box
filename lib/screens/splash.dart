@@ -129,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen> {
       child: Column(
         children: [
           mannual_login(),
-          social_login(),
+        //  social_login(),
           Container(
             padding: EdgeInsets.all(8.0),
             child: Row(

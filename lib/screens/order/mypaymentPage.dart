@@ -18,7 +18,6 @@ import 'package:health_box/utitlity/LocalStorage.dart';
 import 'package:health_box/utitlity/Utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../constant.dart';

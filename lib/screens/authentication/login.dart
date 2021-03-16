@@ -278,7 +278,14 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         } else {
           _customLoader.hideLoader();
-          Utils.toast("${response.statusCode} ");
+          var result = json.decode(response.body);
+          _loginResponseModel = LoginResponseModel.fromJson(result);
+          if(response.statusCode==401){
+            Utils.toast(_loginResponseModel.message);
+
+          }else {
+            Utils.toast("${response.statusCode} ");
+          }
         }
       } else {
         _customLoader.hideLoader();

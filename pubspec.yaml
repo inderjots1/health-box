@@ -30,23 +30,21 @@ dependencies:
   cupertino_icons: ^1.0.0
   material_segmented_control:
   calendar_flutter:
-  shared_preferences:
+  shared_preferences:  0.5.12+4
   intl:
-  easy_localization: 3.0.0
+  easy_localization: 2.3.3+1
   flutter_offline:
   data_connection_checker:
-  image_picker: ^0.6.7+4
+  image_picker:
   firebase_messaging:
   flutter_local_notifications:
   flutter_spinkit:
   fluttertoast: 7.1.8
   http:
   share: ^0.6.5+4
-  date_range_picker: ^1.0.5
   webview_flutter: ^1.0.7
   dio:
   cached_network_image:
-  extended_image:
   marquee:
 
 dev_dependencies:

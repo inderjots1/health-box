@@ -19,7 +19,6 @@ import 'package:health_box/utitlity/Utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:marquee/marquee.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 
 import '../../constant.dart';
 
@@ -303,7 +302,7 @@ class AddNewAdressState extends State<Payment> {
                                 child: TextFormField(
                                   keyboardType: TextInputType.number,
                                   controller: _avenusController,
-                                  focusNode: _avenusNode,
+                                  focusNode: _avenusNode, maxLength: 8,
                                   textInputAction: TextInputAction.next,
                                   onFieldSubmitted: (val) {
                                     setFocusNode(
@@ -343,6 +342,7 @@ class AddNewAdressState extends State<Payment> {
                                   keyboardType: TextInputType.number,
                                   controller: _houseNumberController,
                                   focusNode: _houseNumberNode,
+                                  maxLength: 8,
                                   textInputAction: TextInputAction.next,
                                   onFieldSubmitted: (val) {
                                     setFocusNode(
@@ -383,6 +383,7 @@ class AddNewAdressState extends State<Payment> {
                                   controller: _controllerBlock,
                                   textInputAction: TextInputAction.next,
                                   focusNode: _block,
+                                  maxLength: 8,
                                   onFieldSubmitted: (val) {
                                     setFocusNode(
                                         context: context,
@@ -440,6 +441,7 @@ class AddNewAdressState extends State<Payment> {
                                   keyboardType: TextInputType.text,
                                   controller: _controllerMobile,
                                   focusNode: _mobile,
+                                  maxLength: 8,
                                   textInputAction: TextInputAction.next,
                                   onTap: () async {
                                     showStartPicker(context);
